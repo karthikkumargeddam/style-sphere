@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, ShoppingCart, Phone, Search, User } from "lucide-react";
+import { Menu, X, ShoppingCart, Phone, Search, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { totalItems, setIsCartOpen } = useCart();
+  const { user, signOut } = useAuth();
   const navLinks = [
     { name: "Workwear", href: "/products" },
     { name: "Safety", href: "/products" },
@@ -61,9 +63,19 @@ const Header = () => {
             <button className="hidden md:flex items-center justify-center w-10 h-10 rounded-full hover:bg-secondary transition-colors">
               <Search className="w-5 h-5 text-foreground/80" />
             </button>
-            <button className="hidden md:flex items-center justify-center w-10 h-10 rounded-full hover:bg-secondary transition-colors">
-              <User className="w-5 h-5 text-foreground/80" />
-            </button>
+            {user ? (
+              <button 
+                onClick={() => signOut()}
+                className="hidden md:flex items-center justify-center w-10 h-10 rounded-full hover:bg-secondary transition-colors"
+                title="Sign Out"
+              >
+                <LogOut className="w-5 h-5 text-foreground/80" />
+              </button>
+            ) : (
+              <Link to="/auth" className="hidden md:flex items-center justify-center w-10 h-10 rounded-full hover:bg-secondary transition-colors">
+                <User className="w-5 h-5 text-foreground/80" />
+              </Link>
+            )}
             <button 
               onClick={() => setIsCartOpen(true)}
               className="relative flex items-center justify-center w-10 h-10 rounded-full hover:bg-secondary transition-colors"

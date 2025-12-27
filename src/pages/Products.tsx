@@ -2,9 +2,10 @@ import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Star, ShoppingCart, Filter, Grid, List } from "lucide-react";
+import { Star, ShoppingCart, Filter, Grid, List, Ruler } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
+import SizeGuideModal from "@/components/SizeGuideModal";
 import safetyVest from "@/assets/product-safety-vest.jpg";
 import workTrousers from "@/assets/product-work-trousers.jpg";
 import poloShirt from "@/assets/product-polo-shirt.jpg";
@@ -94,6 +95,7 @@ const categories = ["All Products", "Safety Wear", "Work Trousers", "Polo Shirts
 const Products = () => {
   const [selectedCategory, setSelectedCategory] = useState("All Products");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
   const { addItem } = useCart();
 
   const handleAddToCart = (product: typeof allProducts[0]) => {
@@ -124,9 +126,17 @@ const Products = () => {
             <h1 className="font-display text-4xl sm:text-5xl font-bold text-foreground mb-4">
               Professional Workwear
             </h1>
-            <p className="text-muted-foreground max-w-2xl">
+            <p className="text-muted-foreground max-w-2xl mb-4">
               Browse our complete range of high-quality workwear, uniforms, and PPE. All products can be customized with your company branding.
             </p>
+            <Button 
+              variant="gold" 
+              onClick={() => setIsSizeGuideOpen(true)}
+              className="gap-2"
+            >
+              <Ruler className="w-4 h-4" />
+              AI Size Guide
+            </Button>
           </div>
 
           {/* Filters */}
@@ -243,6 +253,7 @@ const Products = () => {
         </div>
       </main>
       <Footer />
+      <SizeGuideModal isOpen={isSizeGuideOpen} onClose={() => setIsSizeGuideOpen(false)} />
     </div>
   );
 };
