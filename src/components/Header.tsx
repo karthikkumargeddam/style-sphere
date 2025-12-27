@@ -2,10 +2,11 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X, ShoppingCart, Phone, Search, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useCart } from "@/contexts/CartContext";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
+  const { totalItems, setIsCartOpen } = useCart();
   const navLinks = [
     { name: "Workwear", href: "/products" },
     { name: "Safety", href: "/products" },
@@ -63,10 +64,13 @@ const Header = () => {
             <button className="hidden md:flex items-center justify-center w-10 h-10 rounded-full hover:bg-secondary transition-colors">
               <User className="w-5 h-5 text-foreground/80" />
             </button>
-            <button className="relative flex items-center justify-center w-10 h-10 rounded-full hover:bg-secondary transition-colors">
+            <button 
+              onClick={() => setIsCartOpen(true)}
+              className="relative flex items-center justify-center w-10 h-10 rounded-full hover:bg-secondary transition-colors"
+            >
               <ShoppingCart className="w-5 h-5 text-foreground/80" />
               <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs font-bold rounded-full flex items-center justify-center">
-                0
+                {totalItems}
               </span>
             </button>
             <Link to="/quote">
