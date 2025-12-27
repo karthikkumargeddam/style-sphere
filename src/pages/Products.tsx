@@ -3,6 +3,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Star, ShoppingCart, Filter, Grid, List } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
+import { toast } from "sonner";
 import safetyVest from "@/assets/product-safety-vest.jpg";
 import workTrousers from "@/assets/product-work-trousers.jpg";
 import poloShirt from "@/assets/product-polo-shirt.jpg";
@@ -92,6 +94,18 @@ const categories = ["All Products", "Safety Wear", "Work Trousers", "Polo Shirts
 const Products = () => {
   const [selectedCategory, setSelectedCategory] = useState("All Products");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const { addItem } = useCart();
+
+  const handleAddToCart = (product: typeof allProducts[0]) => {
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      category: product.category,
+    });
+    toast.success(`${product.name} added to cart`);
+  };
 
   const filteredProducts = selectedCategory === "All Products"
     ? allProducts
@@ -212,7 +226,11 @@ const Products = () => {
                             </span>
                           )}
                         </div>
-                        <Button variant="gold" size="sm">
+                        <Button 
+                          variant="gold" 
+                          size="sm"
+                          onClick={() => handleAddToCart(product)}
+                        >
                           <ShoppingCart className="w-4 h-4" />
                         </Button>
                       </div>
