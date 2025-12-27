@@ -1,1 +1,7 @@
 project_id = "kceoctwsftogrhwhczop"
+
+[functions.product-chat]
+verify_jwt = false
+
+[functions.size-guide]
+verify_jwt = false
