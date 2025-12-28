@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.size-guide]
 verify_jwt = false
+
+[functions.create-checkout]
+verify_jwt = false

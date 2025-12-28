@@ -64,13 +64,9 @@ const Header = () => {
               <Search className="w-5 h-5 text-foreground/80" />
             </button>
             {user ? (
-              <button 
-                onClick={() => signOut()}
-                className="hidden md:flex items-center justify-center w-10 h-10 rounded-full hover:bg-secondary transition-colors"
-                title="Sign Out"
-              >
-                <LogOut className="w-5 h-5 text-foreground/80" />
-              </button>
+              <Link to="/profile" className="hidden md:flex items-center justify-center w-10 h-10 rounded-full hover:bg-secondary transition-colors" title="Profile">
+                <User className="w-5 h-5 text-foreground/80" />
+              </Link>
             ) : (
               <Link to="/auth" className="hidden md:flex items-center justify-center w-10 h-10 rounded-full hover:bg-secondary transition-colors">
                 <User className="w-5 h-5 text-foreground/80" />
