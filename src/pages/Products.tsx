@@ -2,8 +2,9 @@ import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Star, ShoppingCart, Filter, Grid, List, Ruler } from "lucide-react";
+import { Star, ShoppingCart, Filter, Grid, List, Ruler, Heart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
 import { toast } from "sonner";
 import SizeGuideModal from "@/components/SizeGuideModal";
 import safetyVest from "@/assets/product-safety-vest.jpg";
@@ -97,6 +98,7 @@ const Products = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
   const { addItem } = useCart();
+  const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
 
   const handleAddToCart = (product: typeof allProducts[0]) => {
     addItem({
@@ -107,6 +109,20 @@ const Products = () => {
       category: product.category,
     });
     toast.success(`${product.name} added to cart`);
+  };
+
+  const handleToggleWishlist = (product: typeof allProducts[0]) => {
+    if (isInWishlist(product.id)) {
+      removeFromWishlist(product.id);
+    } else {
+      addToWishlist({
+        product_id: product.id,
+        product_name: product.name,
+        product_price: product.price,
+        product_image: product.image,
+        product_category: product.category,
+      });
+    }
   };
 
   const filteredProducts = selectedCategory === "All Products"
@@ -208,6 +224,16 @@ const Products = () => {
                           {product.badge}
                         </span>
                       )}
+                      <button
+                        onClick={() => handleToggleWishlist(product)}
+                        className={`absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
+                          isInWishlist(product.id)
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-background/80 hover:bg-primary hover:text-primary-foreground"
+                        }`}
+                      >
+                        <Heart className={`w-4 h-4 ${isInWishlist(product.id) ? "fill-current" : ""}`} />
+                      </button>
                     </div>
                     <div className="p-5 flex-1">
                       <span className="text-xs text-muted-foreground uppercase tracking-wider">

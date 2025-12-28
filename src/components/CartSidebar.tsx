@@ -1,7 +1,10 @@
-import { X, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { X, Minus, Plus, ShoppingBag, Trash2, Loader2 } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const CartSidebar = () => {
   const {
@@ -14,6 +17,29 @@ const CartSidebar = () => {
     setIsCartOpen,
     clearCart,
   } = useCart();
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+
+  const handleCheckout = async () => {
+    if (items.length === 0) return;
+
+    setIsCheckingOut(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { items },
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        window.open(data.url, "_blank");
+      }
+    } catch (error) {
+      console.error("Checkout error:", error);
+      toast.error("Failed to start checkout. Please try again.");
+    } finally {
+      setIsCheckingOut(false);
+    }
+  };
 
   if (!isCartOpen) return null;
 
@@ -128,8 +154,21 @@ const CartSidebar = () => {
             <p className="text-sm text-muted-foreground">
               Shipping calculated at checkout
             </p>
-            <Button variant="gold" className="w-full" size="lg">
-              Proceed to Checkout
+            <Button
+              variant="gold"
+              className="w-full"
+              size="lg"
+              onClick={handleCheckout}
+              disabled={isCheckingOut}
+            >
+              {isCheckingOut ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                "Proceed to Checkout"
+              )}
             </Button>
             <button
               onClick={clearCart}
