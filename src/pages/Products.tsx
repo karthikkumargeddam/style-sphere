@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Star, ShoppingCart, Filter, Grid, List, Ruler, Heart } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { Star, ShoppingCart, Filter, Grid, List, Ruler, Heart, Search, X } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { toast } from "sonner";
@@ -92,11 +95,23 @@ const allProducts = [
 ];
 
 const categories = ["All Products", "Safety Wear", "Work Trousers", "Polo Shirts", "PPE Equipment"];
+const ratingOptions = [
+  { value: 0, label: "All Ratings" },
+  { value: 4, label: "4+ Stars" },
+  { value: 4.5, label: "4.5+ Stars" },
+  { value: 4.8, label: "4.8+ Stars" },
+];
+
+const MIN_PRICE = 0;
+const MAX_PRICE = 50;
 
 const Products = () => {
   const [selectedCategory, setSelectedCategory] = useState("All Products");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [priceRange, setPriceRange] = useState<[number, number]>([MIN_PRICE, MAX_PRICE]);
+  const [minRating, setMinRating] = useState(0);
   const { addItem } = useCart();
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
 
@@ -125,9 +140,44 @@ const Products = () => {
     }
   };
 
-  const filteredProducts = selectedCategory === "All Products"
-    ? allProducts
-    : allProducts.filter(p => p.category === selectedCategory);
+  const clearFilters = () => {
+    setSearchQuery("");
+    setSelectedCategory("All Products");
+    setPriceRange([MIN_PRICE, MAX_PRICE]);
+    setMinRating(0);
+  };
+
+  const hasActiveFilters = searchQuery || selectedCategory !== "All Products" || priceRange[0] > MIN_PRICE || priceRange[1] < MAX_PRICE || minRating > 0;
+
+  const filteredProducts = useMemo(() => {
+    return allProducts.filter((product) => {
+      // Search filter
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        const matchesSearch = 
+          product.name.toLowerCase().includes(query) ||
+          product.category.toLowerCase().includes(query);
+        if (!matchesSearch) return false;
+      }
+
+      // Category filter
+      if (selectedCategory !== "All Products" && product.category !== selectedCategory) {
+        return false;
+      }
+
+      // Price range filter
+      if (product.price < priceRange[0] || product.price > priceRange[1]) {
+        return false;
+      }
+
+      // Rating filter
+      if (product.rating < minRating) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [searchQuery, selectedCategory, priceRange, minRating]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -155,29 +205,103 @@ const Products = () => {
             </Button>
           </div>
 
+          {/* Search Bar */}
+          <div className="relative mb-8">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <Input
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-12 pr-12 h-12 text-base bg-secondary/50 border-border/50 focus:border-primary"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            )}
+          </div>
+
           {/* Filters */}
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Sidebar */}
             <aside className="lg:w-64 flex-shrink-0">
-              <div className="card-industrial p-6 sticky top-40">
-                <div className="flex items-center gap-2 mb-6">
-                  <Filter className="w-5 h-5 text-primary" />
-                  <h3 className="font-display text-lg font-semibold text-foreground">Categories</h3>
-                </div>
-                <div className="space-y-2">
-                  {categories.map((category) => (
+              <div className="card-industrial p-6 sticky top-40 space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Filter className="w-5 h-5 text-primary" />
+                    <h3 className="font-display text-lg font-semibold text-foreground">Filters</h3>
+                  </div>
+                  {hasActiveFilters && (
                     <button
-                      key={category}
-                      onClick={() => setSelectedCategory(category)}
-                      className={`w-full text-left px-4 py-3 rounded-md transition-colors ${
-                        selectedCategory === category
-                          ? "bg-primary text-primary-foreground font-medium"
-                          : "text-foreground/80 hover:bg-secondary"
-                      }`}
+                      onClick={clearFilters}
+                      className="text-xs text-primary hover:text-primary/80 font-medium"
                     >
-                      {category}
+                      Clear All
                     </button>
-                  ))}
+                  )}
+                </div>
+
+                {/* Categories */}
+                <div>
+                  <Label className="text-sm font-medium text-foreground mb-3 block">Category</Label>
+                  <div className="space-y-1">
+                    {categories.map((category) => (
+                      <button
+                        key={category}
+                        onClick={() => setSelectedCategory(category)}
+                        className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors ${
+                          selectedCategory === category
+                            ? "bg-primary text-primary-foreground font-medium"
+                            : "text-foreground/80 hover:bg-secondary"
+                        }`}
+                      >
+                        {category}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Price Range */}
+                <div>
+                  <Label className="text-sm font-medium text-foreground mb-3 block">
+                    Price Range: £{priceRange[0]} - £{priceRange[1]}
+                  </Label>
+                  <Slider
+                    value={priceRange}
+                    onValueChange={(value) => setPriceRange(value as [number, number])}
+                    min={MIN_PRICE}
+                    max={MAX_PRICE}
+                    step={1}
+                    className="mt-2"
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                    <span>£{MIN_PRICE}</span>
+                    <span>£{MAX_PRICE}</span>
+                  </div>
+                </div>
+
+                {/* Rating Filter */}
+                <div>
+                  <Label className="text-sm font-medium text-foreground mb-3 block">Minimum Rating</Label>
+                  <div className="space-y-1">
+                    {ratingOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => setMinRating(option.value)}
+                        className={`w-full text-left px-3 py-2 rounded-md text-sm transition-colors flex items-center gap-2 ${
+                          minRating === option.value
+                            ? "bg-primary text-primary-foreground font-medium"
+                            : "text-foreground/80 hover:bg-secondary"
+                        }`}
+                      >
+                        {option.value > 0 && <Star className="w-3 h-3 fill-current" />}
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </aside>
