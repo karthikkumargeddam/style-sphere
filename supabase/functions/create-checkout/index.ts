@@ -70,7 +70,8 @@ serve(async (req) => {
         product_data: {
           name: item.name,
           description: item.category,
-          images: [item.image],
+          // Only include images if they are valid URLs (not local paths)
+          ...(item.image.startsWith("http") ? { images: [item.image] } : {}),
         },
         unit_amount: Math.round(item.price * 100), // Convert to pence
       },
