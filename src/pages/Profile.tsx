@@ -13,6 +13,8 @@ import { useWishlist } from "@/contexts/WishlistContext";
 import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
 
 interface ProfileData {
   full_name: string | null;
@@ -25,6 +27,23 @@ interface ProfileData {
   industry: string | null;
 }
 
+interface OrderItem {
+  id: number;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
+}
+
+interface Order {
+  id: string;
+  status: string;
+  total_amount: number;
+  currency: string;
+  items: OrderItem[];
+  created_at: string;
+}
+
 const Profile = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -32,6 +51,8 @@ const Profile = () => {
   const { addItem: addToCart } = useCart();
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [isLoadingOrders, setIsLoadingOrders] = useState(false);
   const [profile, setProfile] = useState<ProfileData>({
     full_name: "",
     email: "",
@@ -49,7 +70,45 @@ const Profile = () => {
       return;
     }
     fetchProfile();
+    fetchOrders();
   }, [user, navigate]);
+
+  const fetchOrders = async () => {
+    if (!user) return;
+    
+    setIsLoadingOrders(true);
+    try {
+      const { data, error } = await supabase
+        .from("orders")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      setOrders((data || []).map(order => ({
+        ...order,
+        items: order.items as unknown as OrderItem[]
+      })));
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    } finally {
+      setIsLoadingOrders(false);
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "bg-green-500/20 text-green-400 border-green-500/30";
+      case "pending":
+        return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
+      case "cancelled":
+        return "bg-red-500/20 text-red-400 border-red-500/30";
+      default:
+        return "bg-muted text-muted-foreground";
+    }
+  };
 
   const fetchProfile = async () => {
     if (!user) return;
@@ -132,10 +191,14 @@ const Profile = () => {
           </div>
 
           <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3 lg:grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-4">
               <TabsTrigger value="profile" className="gap-2">
                 <User className="w-4 h-4" />
                 <span className="hidden sm:inline">Profile</span>
+              </TabsTrigger>
+              <TabsTrigger value="orders" className="gap-2">
+                <Package className="w-4 h-4" />
+                <span className="hidden sm:inline">Orders</span>
               </TabsTrigger>
               <TabsTrigger value="wishlist" className="gap-2">
                 <Heart className="w-4 h-4" />
@@ -213,6 +276,62 @@ const Profile = () => {
                     {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                     Save Changes
                   </Button>
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="orders" className="card-industrial p-6">
+              <h2 className="font-display text-xl font-semibold text-foreground mb-6">
+                Order History ({orders.length} orders)
+              </h2>
+              {isLoadingOrders ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                </div>
+              ) : orders.length === 0 ? (
+                <div className="text-center py-12">
+                  <Package className="w-16 h-16 text-muted-foreground/50 mx-auto mb-4" />
+                  <p className="text-muted-foreground">No orders yet</p>
+                  <Button variant="outline" className="mt-4" onClick={() => navigate("/products")}>
+                    Start Shopping
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {orders.map((order) => (
+                    <div key={order.id} className="bg-secondary/50 rounded-lg p-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                        <div>
+                          <p className="text-sm text-muted-foreground">
+                            Order #{order.id.slice(0, 8).toUpperCase()}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {format(new Date(order.created_at), "MMM d, yyyy 'at' h:mm a")}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Badge className={getStatusColor(order.status)}>
+                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                          </Badge>
+                          <span className="font-bold text-primary">
+                            £{Number(order.total_amount).toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        {order.items.map((item, idx) => (
+                          <div key={idx} className="flex items-center gap-3 text-sm">
+                            <div className="w-10 h-10 rounded bg-secondary overflow-hidden flex-shrink-0">
+                              <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                            </div>
+                            <span className="flex-1 text-foreground">{item.name}</span>
+                            <span className="text-muted-foreground">x{item.quantity}</span>
+                            <span className="text-foreground">£{(item.price * item.quantity).toFixed(2)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </TabsContent>
