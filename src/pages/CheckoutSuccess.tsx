@@ -7,6 +7,7 @@ import { CheckCircle, Package, ArrowRight, Loader2 } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const CheckoutSuccess = () => {
   const { items, clearCart, totalPrice } = useCart();
@@ -16,15 +17,17 @@ const CheckoutSuccess = () => {
   const [isSaving, setIsSaving] = useState(true);
 
   useEffect(() => {
-    const saveOrder = async () => {
+    const saveOrderAndSendEmail = async () => {
       if (!user || items.length === 0 || orderSaved) {
         setIsSaving(false);
         return;
       }
 
       const sessionId = searchParams.get("session_id");
+      const orderId = `ORD-${Date.now().toString(36).toUpperCase()}`;
 
       try {
+        // Save order to database
         const { error } = await supabase.from("orders").insert({
           user_id: user.id,
           stripe_session_id: sessionId,
@@ -42,6 +45,29 @@ const CheckoutSuccess = () => {
 
         if (error) throw error;
 
+        // Send confirmation email
+        const { error: emailError } = await supabase.functions.invoke("send-order-confirmation", {
+          body: {
+            email: user.email,
+            customerName: user.user_metadata?.full_name || user.email?.split("@")[0],
+            orderId,
+            items: items.map((item) => ({
+              name: item.name,
+              price: item.price,
+              quantity: item.quantity,
+            })),
+            totalAmount: totalPrice,
+            currency: "gbp",
+          },
+        });
+
+        if (emailError) {
+          console.error("Error sending confirmation email:", emailError);
+          toast.error("Order saved but confirmation email failed to send");
+        } else {
+          toast.success("Confirmation email sent!");
+        }
+
         setOrderSaved(true);
         clearCart();
       } catch (error) {
@@ -51,7 +77,7 @@ const CheckoutSuccess = () => {
       }
     };
 
-    saveOrder();
+    saveOrderAndSendEmail();
   }, [user, items, clearCart, totalPrice, searchParams, orderSaved]);
 
   return (
