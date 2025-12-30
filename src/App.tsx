@@ -15,6 +15,25 @@ import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import CheckoutSuccess from "./pages/CheckoutSuccess";
 import NotFound from "./pages/NotFound";
+//import { Routes, Route } from "react-router-dom";
+
+import HiVisWorkwear from "./pages/products/HiVisWorkwear";
+import WorkTrousers from "./pages/products/WorkTrousers";
+import PoloShirts from "./pages/products/PoloShirts";
+import JacketsCoats from "./pages/products/JacketsCoats";
+import SafetyBoots from "./pages/products/SafetyBoots";
+import PPEEquipment from "./pages/products/PPEEquipment";
+
+
+<Routes>
+  <Route path="/products/hi-vis-workwear" element={<HiVisWorkwear />} />
+  <Route path="/products/work-trousers" element={<WorkTrousers />} />
+  <Route path="/products/polo-shirts" element={<PoloShirts />} />
+  <Route path="/products/jackets-coats" element={<JacketsCoats />} />
+  <Route path="/products/safety-boots" element={<SafetyBoots />} />
+  <Route path="/products/ppe-equipment" element={<PPEEquipment />} />
+</Routes>
+
 
 const queryClient = new QueryClient();
 
