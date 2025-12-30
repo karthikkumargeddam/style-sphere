@@ -4,6 +4,7 @@ import { Menu, X, ShoppingCart, Phone, Search, User, LogOut } from "lucide-react
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { AdminNotifications } from "@/components/AdminNotifications";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -60,6 +61,7 @@ const Header = () => {
 
           {/* Actions */}
           <div className="flex items-center gap-4">
+            <AdminNotifications />
             <button className="hidden md:flex items-center justify-center w-10 h-10 rounded-full hover:bg-secondary transition-colors">
               <Search className="w-5 h-5 text-foreground/80" />
             </button>

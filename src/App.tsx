@@ -10,6 +10,7 @@ import CartSidebar from "@/components/CartSidebar";
 import AIChatbot from "@/components/AIChatbot";
 import Index from "./pages/Index";
 import Products from "./pages/Products";
+import ProductDetail from "./pages/ProductDetail";
 import Quote from "./pages/Quote";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
@@ -51,6 +52,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/products" element={<Products />} />
+                <Route path="/products/:id" element={<ProductDetail />} />
                 <Route path="/quote" element={<Quote />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/profile" element={<Profile />} />
