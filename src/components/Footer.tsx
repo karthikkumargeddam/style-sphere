@@ -34,6 +34,17 @@ const serviceLinks: FooterLink[] = [
   { label: "Free Returns", path: "/services/free-returns" },
 ];
 
+const categoryLinks: FooterLink[] = [
+  { label: "Safety Jackets", path: "/products?category=cat_1" },
+  { label: "Work Pants", path: "/products?category=cat_2" },
+  { label: "Hi-Vis Vests", path: "/products?category=cat_3" },
+  { label: "Coveralls", path: "/products?category=cat_4" },
+  { label: "Work Bundles", path: "/products?category=cat_5" },
+  { label: "Protective Gear", path: "/products?category=cat_6" },
+  { label: "Winter Workwear", path: "/products?category=cat_7" },
+  { label: "Custom Wear", path: "/products?category=cat_8" },
+];
+
 /* ---------------- COMPONENT ---------------- */
 const Footer: React.FC = () => {
   return (
@@ -97,12 +108,13 @@ const Footer: React.FC = () => {
           </div>
 
           {/* Products */}
+          {/* Products */}
           <div>
             <h4 className="font-display text-lg font-semibold text-foreground mb-6 uppercase tracking-wide">
               Products
             </h4>
             <ul className="space-y-3">
-              {productLinks.map((item) => (
+              {categoryLinks.map((item) => (
                 <li key={item.path}>
                   <Link
                     to={item.path}
