@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -337,7 +338,10 @@ const Products = () => {
                     className={`group card-industrial animate-fade-up ${viewMode === "list" ? "flex" : ""}`}
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
-                    <div className={`relative overflow-hidden bg-secondary/50 ${viewMode === "list" ? "w-48 flex-shrink-0" : "aspect-square"}`}>
+                    <Link 
+                      to={`/products/${product.id}`}
+                      className={`relative overflow-hidden bg-secondary/50 block ${viewMode === "list" ? "w-48 flex-shrink-0" : "aspect-square"}`}
+                    >
                       <img
                         src={product.image}
                         alt={product.name}
@@ -349,7 +353,10 @@ const Products = () => {
                         </span>
                       )}
                       <button
-                        onClick={() => handleToggleWishlist(product)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleToggleWishlist(product);
+                        }}
                         className={`absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
                           isInWishlist(product.id)
                             ? "bg-primary text-primary-foreground"
@@ -358,14 +365,16 @@ const Products = () => {
                       >
                         <Heart className={`w-4 h-4 ${isInWishlist(product.id) ? "fill-current" : ""}`} />
                       </button>
-                    </div>
+                    </Link>
                     <div className="p-5 flex-1">
                       <span className="text-xs text-muted-foreground uppercase tracking-wider">
                         {product.category}
                       </span>
-                      <h3 className="font-display text-lg font-semibold text-foreground mt-1 mb-2 group-hover:text-primary transition-colors">
-                        {product.name}
-                      </h3>
+                      <Link to={`/products/${product.id}`}>
+                        <h3 className="font-display text-lg font-semibold text-foreground mt-1 mb-2 group-hover:text-primary transition-colors">
+                          {product.name}
+                        </h3>
+                      </Link>
                       <div className="flex items-center gap-2 mb-3">
                         <div className="flex items-center gap-1">
                           <Star className="w-4 h-4 fill-primary text-primary" />
