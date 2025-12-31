@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -25,6 +25,8 @@ import { useWishlist } from "@/contexts/WishlistContext";
 import { toast } from "sonner";
 import SizeGuideModal from "@/components/SizeGuideModal";
 import RelatedProducts from "@/components/RelatedProducts";
+import RecentlyViewed from "@/components/RecentlyViewed";
+import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import safetyVest from "@/assets/product-safety-vest.jpg";
 import workTrousers from "@/assets/product-work-trousers.jpg";
 import poloShirt from "@/assets/product-polo-shirt.jpg";
@@ -465,6 +467,20 @@ const ProductDetail = () => {
   
   const { addItem } = useCart();
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
+  const { addToRecentlyViewed } = useRecentlyViewed();
+
+  // Track product view
+  useEffect(() => {
+    if (product) {
+      addToRecentlyViewed({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        category: product.category,
+      });
+    }
+  }, [product?.id]);
 
   if (!product) {
     return (
@@ -851,6 +867,9 @@ const ProductDetail = () => {
 
           {/* Related Products */}
           <RelatedProducts currentProductId={product.id} currentCategory={product.category} />
+
+          {/* Recently Viewed */}
+          <RecentlyViewed excludeProductId={product.id} />
 
           {/* Why Choose Us */}
           <div className="card-industrial p-8 md:p-12">
