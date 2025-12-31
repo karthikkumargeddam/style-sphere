@@ -7,6 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Star,
   ShoppingCart,
   Filter,
@@ -117,6 +124,7 @@ const Products = () => {
     MAX_PRICE,
   ]);
   const [minRating, setMinRating] = useState(0);
+  const [sortBy, setSortBy] = useState<"newest" | "price-asc" | "price-desc" | "rating">("newest");
 
   const { addItem } = useCart();
   const {
@@ -168,13 +176,14 @@ const Products = () => {
     setSelectedCategory("All Products");
     setPriceRange([MIN_PRICE, MAX_PRICE]);
     setMinRating(0);
+    setSortBy("newest");
     window.history.replaceState({}, "", "/products");
   };
 
   /* ---------------- FILTER LOGIC ---------------- */
 
   const filteredProducts = useMemo(() => {
-    return allProducts.filter((product) => {
+    let result = allProducts.filter((product) => {
       if (
         searchQuery &&
         !product.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -202,7 +211,26 @@ const Products = () => {
 
       return true;
     });
-  }, [searchQuery, selectedCategory, priceRange, minRating]);
+
+    // Apply sorting
+    switch (sortBy) {
+      case "price-asc":
+        result = [...result].sort((a, b) => a.price - b.price);
+        break;
+      case "price-desc":
+        result = [...result].sort((a, b) => b.price - a.price);
+        break;
+      case "rating":
+        result = [...result].sort((a, b) => b.rating - a.rating);
+        break;
+      case "newest":
+      default:
+        // Keep original order (assuming newest first)
+        break;
+    }
+
+    return result;
+  }, [searchQuery, selectedCategory, priceRange, minRating, sortBy]);
 
   /* ---------------- JSX ---------------- */
 
@@ -264,7 +292,29 @@ const Products = () => {
             </aside>
 
             {/* PRODUCTS */}
-            <section className="lg:col-span-3 grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
+            <section className="lg:col-span-3">
+              {/* Sort and results count */}
+              <div className="flex items-center justify-between mb-6">
+                <p className="text-muted-foreground">
+                  {filteredProducts.length} product{filteredProducts.length !== 1 ? "s" : ""} found
+                </p>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Sort by:</span>
+                  <Select value={sortBy} onValueChange={(value: typeof sortBy) => setSortBy(value)}>
+                    <SelectTrigger className="w-[180px] bg-background">
+                      <SelectValue placeholder="Sort by" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background border z-50">
+                      <SelectItem value="newest">Newest</SelectItem>
+                      <SelectItem value="price-asc">Price: Low to High</SelectItem>
+                      <SelectItem value="price-desc">Price: High to Low</SelectItem>
+                      <SelectItem value="rating">Highest Rated</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
               {filteredProducts.map((product) => (
                 <div
                   key={product.id}
@@ -386,6 +436,7 @@ const Products = () => {
                   </Button>
                 </div>
               )}
+              </div>
             </section>
           </div>
         </div>
