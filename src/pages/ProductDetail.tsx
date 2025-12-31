@@ -24,6 +24,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { toast } from "sonner";
 import SizeGuideModal from "@/components/SizeGuideModal";
+import RelatedProducts from "@/components/RelatedProducts";
 import safetyVest from "@/assets/product-safety-vest.jpg";
 import workTrousers from "@/assets/product-work-trousers.jpg";
 import poloShirt from "@/assets/product-polo-shirt.jpg";
@@ -847,6 +848,9 @@ const ProductDetail = () => {
               </div>
             </TabsContent>
           </Tabs>
+
+          {/* Related Products */}
+          <RelatedProducts currentProductId={product.id} currentCategory={product.category} />
 
           {/* Why Choose Us */}
           <div className="card-industrial p-8 md:p-12">
