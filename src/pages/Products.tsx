@@ -266,30 +266,126 @@ const Products = () => {
             {/* PRODUCTS */}
             <section className="lg:col-span-3 grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
               {filteredProducts.map((product) => (
-                <div key={product.id} className="card-industrial p-5">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="mb-4 rounded"
-                  />
-                  <h3 className="font-semibold">{product.name}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {product.category}
-                  </p>
+                <div
+                  key={product.id}
+                  className="group card-industrial overflow-hidden hover:shadow-lg transition-all duration-300"
+                >
+                  {/* Image with overlay */}
+                  <Link to={`/products/${product.id}`}>
+                    <div className="relative aspect-square overflow-hidden bg-muted">
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      {product.badge && (
+                        <span
+                          className={`absolute top-3 left-3 px-2 py-1 text-xs font-semibold rounded ${
+                            product.badge === "Best Seller"
+                              ? "bg-primary text-primary-foreground"
+                              : product.badge === "New"
+                              ? "bg-green-500 text-white"
+                              : "bg-red-500 text-white"
+                          }`}
+                        >
+                          {product.badge}
+                        </span>
+                      )}
+                      
+                      {/* Quick actions overlay */}
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                        <Button
+                          size="icon"
+                          variant="secondary"
+                          className="h-10 w-10"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleAddToCart(product);
+                          }}
+                        >
+                          <ShoppingCart className="w-5 h-5" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="secondary"
+                          className={`h-10 w-10 ${
+                            isInWishlist(product.id) ? "text-red-500" : ""
+                          }`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleToggleWishlist(product);
+                          }}
+                        >
+                          <Heart
+                            className={`w-5 h-5 ${
+                              isInWishlist(product.id) ? "fill-current" : ""
+                            }`}
+                          />
+                        </Button>
+                      </div>
+                    </div>
+                  </Link>
 
-                  <div className="flex justify-between items-center mt-4">
-                    <span className="font-bold">
-                      £{product.price.toFixed(2)}
-                    </span>
-                    <Button
-                      size="sm"
-                      onClick={() => handleAddToCart(product)}
-                    >
-                      <ShoppingCart className="w-4 h-4" />
-                    </Button>
+                  {/* Product info */}
+                  <div className="p-5">
+                    <Link to={`/products/${product.id}`}>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
+                        {product.category}
+                      </p>
+                      <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors mb-2 line-clamp-2">
+                        {product.name}
+                      </h3>
+                    </Link>
+
+                    {/* Rating */}
+                    <div className="flex items-center gap-1 mb-3">
+                      <div className="flex items-center">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`w-3.5 h-3.5 ${
+                              i < Math.floor(product.rating)
+                                ? "fill-yellow-400 text-yellow-400"
+                                : "text-muted-foreground"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-xs text-muted-foreground ml-1">
+                        {product.rating} ({product.reviews} reviews)
+                      </span>
+                    </div>
+
+                    {/* Price and CTA */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-lg text-foreground">
+                          £{product.price.toFixed(2)}
+                        </span>
+                        {product.originalPrice && (
+                          <span className="text-sm text-muted-foreground line-through">
+                            £{product.originalPrice.toFixed(2)}
+                          </span>
+                        )}
+                      </div>
+                      <Link to={`/products/${product.id}`}>
+                        <Button size="sm" variant="outline">
+                          View Details
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                 </div>
               ))}
+
+              {filteredProducts.length === 0 && (
+                <div className="col-span-full text-center py-12">
+                  <p className="text-muted-foreground text-lg">No products found matching your criteria.</p>
+                  <Button variant="outline" className="mt-4" onClick={clearFilters}>
+                    Clear Filters
+                  </Button>
+                </div>
+              )}
             </section>
           </div>
         </div>
