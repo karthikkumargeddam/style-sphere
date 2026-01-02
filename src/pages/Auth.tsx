@@ -14,6 +14,8 @@ const Auth = () => {
   const [fullName, setFullName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
 
@@ -35,9 +37,9 @@ const Auth = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     setLoading(true);
 
     try {
@@ -73,12 +75,46 @@ const Auth = () => {
     }
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!resetEmail || !resetEmail.includes("@")) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:3001/api/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: resetEmail })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success("Password reset link sent to your email!");
+        setShowForgotPassword(false);
+        setResetEmail("");
+      } else {
+        toast.error(data.error || "Failed to send reset email");
+      }
+    } catch (error) {
+      toast.error("Could not connect to server. Please try again.");
+      console.error('Forgot password error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Back to Home */}
-        <Link 
-          to="/" 
+        <Link
+          to="/"
           className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -102,8 +138,8 @@ const Auth = () => {
             {isLogin ? "Welcome Back" : "Create Account"}
           </h1>
           <p className="text-muted-foreground text-center mb-8">
-            {isLogin 
-              ? "Sign in to access your account" 
+            {isLogin
+              ? "Sign in to access your account"
               : "Join us for the best workwear experience"}
           </p>
 
@@ -163,15 +199,28 @@ const Auth = () => {
               </div>
             </div>
 
-            <Button 
-              type="submit" 
-              variant="gold" 
-              className="w-full" 
+            {/* Forgot Password Link */}
+            {isLogin && (
+              <div className="text-right">
+                <button
+                  type="button"
+                  onClick={() => setShowForgotPassword(true)}
+                  className="text-sm text-primary hover:underline"
+                >
+                  Forgot Password?
+                </button>
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              variant="gold"
+              className="w-full"
               size="lg"
               disabled={loading}
             >
-              {loading 
-                ? (isLogin ? "Signing in..." : "Creating account...") 
+              {loading
+                ? (isLogin ? "Signing in..." : "Creating account...")
                 : (isLogin ? "Sign In" : "Create Account")}
             </Button>
           </form>
@@ -189,6 +238,58 @@ const Auth = () => {
             </button>
           </div>
         </div>
+
+        {/* Forgot Password Modal */}
+        {showForgotPassword && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+            <div className="card-industrial p-8 max-w-md w-full">
+              <h2 className="font-display text-2xl font-bold text-foreground mb-2">
+                Reset Password
+              </h2>
+              <p className="text-muted-foreground mb-6">
+                Enter your email address and we'll send you a link to reset your password.
+              </p>
+
+              <form onSubmit={handleForgotPassword} className="space-y-5">
+                <div className="space-y-2">
+                  <Label htmlFor="resetEmail">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Input
+                      id="resetEmail"
+                      type="email"
+                      placeholder="you@example.com"
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <Button
+                    type="submit"
+                    variant="gold"
+                    className="flex-1"
+                    disabled={loading}
+                  >
+                    {loading ? "Sending..." : "Send Reset Link"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setShowForgotPassword(false);
+                      setResetEmail("");
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

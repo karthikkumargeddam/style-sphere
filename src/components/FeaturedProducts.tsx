@@ -8,6 +8,7 @@ import safetyVest from "@/assets/product-safety-vest.jpg";
 import workTrousers from "@/assets/product-work-trousers.jpg";
 import poloShirt from "@/assets/product-polo-shirt.jpg";
 import hardHat from "@/assets/product-hard-hat.jpg";
+import MovableCard from "@/components/ui/MovableCard";
 
 const products = [
   {
@@ -81,11 +82,14 @@ const FeaturedProducts = () => {
   };
 
   return (
-    <section className="py-20 bg-card">
-      <div className="container mx-auto px-4">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-12">
+    <section className="py-20 bg-card relative overflow-hidden">
+      {/* Ambient background effect */}
+      <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
+
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-12 animate-fade-up">
           <div>
-            <span className="inline-block px-4 py-2 bg-primary/20 text-primary rounded-full text-sm font-semibold uppercase tracking-wider mb-4">
+            <span className="inline-block px-4 py-2 glass-gold rounded-full text-sm font-semibold uppercase tracking-wider mb-4 shadow-depth-sm">
               Featured Products
             </span>
             <h2 className="font-display text-4xl sm:text-5xl font-bold text-foreground">
@@ -93,45 +97,43 @@ const FeaturedProducts = () => {
             </h2>
           </div>
           <Link to="/products">
-            <Button variant="outline" size="lg">
+            <Button variant="outline" size="lg" className="shadow-depth-md hover:shadow-depth-lg transition-all">
               View All Products
             </Button>
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 perspective-lg">
           {products.map((product, index) => (
-            <div
+            <MovableCard
               key={product.id}
-              className="group card-industrial animate-fade-up"
-              style={{ animationDelay: `${index * 100}ms` }}
+              className={`group card-3d animate-fade-up p-0 overflow-hidden animation-delay-${index * 100}`}
             >
               <div className="relative aspect-square overflow-hidden bg-secondary/50">
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110 group-hover:rotate-1"
                 />
                 {product.badge && (
-                  <span className="absolute top-4 left-4 px-3 py-1 bg-primary text-primary-foreground text-xs font-bold uppercase rounded">
+                  <span className="absolute top-4 left-4 px-3 py-1 bg-gradient-to-r from-primary to-accent text-primary-foreground text-xs font-bold uppercase rounded shadow-depth-md animate-shimmer" style={{ background: 'linear-gradient(90deg, hsl(45 100% 50%), hsl(48 100% 60%), hsl(45 100% 50%))' }}>
                     {product.badge}
                   </span>
                 )}
                 <button
                   onClick={() => handleToggleWishlist(product)}
-                  className={`absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
-                    isInWishlist(product.id)
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-background/80 hover:bg-primary hover:text-primary-foreground"
-                  }`}
+                  className={`absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center transition-all shadow-depth-sm hover:shadow-depth-md ${isInWishlist(product.id)
+                    ? "bg-primary text-primary-foreground scale-110"
+                    : "bg-background/80 hover:bg-primary hover:text-primary-foreground hover:scale-110"
+                    }`}
                 >
                   <Heart className={`w-4 h-4 ${isInWishlist(product.id) ? "fill-current" : ""}`} />
                 </button>
-                <div className="absolute inset-0 bg-background/0 group-hover:bg-background/60 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                <div className="absolute inset-0 bg-background/0 group-hover:bg-background/60 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100 backdrop-blur-sm">
                   <Button
                     variant="gold"
                     size="lg"
-                    className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300"
+                    className="transform translate-y-4 group-hover:translate-y-0 transition-all duration-300"
                     onClick={() => handleAddToCart(product)}
                   >
                     <ShoppingCart className="w-5 h-5 mr-2" />
@@ -166,7 +168,7 @@ const FeaturedProducts = () => {
                   )}
                 </div>
               </div>
-            </div>
+            </MovableCard>
           ))}
         </div>
       </div>

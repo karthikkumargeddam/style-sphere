@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import DiscountCodeInput from "@/components/DiscountCodeInput";
 
 const CartSidebar = () => {
   const {
@@ -13,6 +14,12 @@ const CartSidebar = () => {
     updateQuantity,
     totalItems,
     totalPrice,
+    subtotal,
+    discountAmount,
+    shippingCost,
+    appliedDiscount,
+    applyDiscount,
+    removeDiscount,
     isCartOpen,
     setIsCartOpen,
     clearCart,
@@ -145,15 +152,45 @@ const CartSidebar = () => {
         {/* Footer */}
         {items.length > 0 && (
           <div className="border-t border-border p-6 space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">Subtotal</span>
-              <span className="font-bold text-xl text-foreground">
-                £{totalPrice.toFixed(2)}
-              </span>
+            {/* Discount Code Input */}
+            <DiscountCodeInput
+              subtotal={subtotal}
+              categories={[...new Set(items.map(item => item.category))]}
+              isFirstOrder={false}
+              onApply={applyDiscount}
+              onRemove={removeDiscount}
+              appliedDiscount={appliedDiscount}
+            />
+
+            {/* Price Breakdown */}
+            <div className="space-y-2 pt-4">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Subtotal</span>
+                <span className="text-foreground">£{subtotal.toFixed(2)}</span>
+              </div>
+
+              {discountAmount > 0 && (
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-green-400">Discount</span>
+                  <span className="text-green-400">-£{discountAmount.toFixed(2)}</span>
+                </div>
+              )}
+
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-muted-foreground">Shipping</span>
+                <span className="text-foreground">
+                  {shippingCost === 0 ? "FREE" : `£${shippingCost.toFixed(2)}`}
+                </span>
+              </div>
+
+              <div className="border-t border-border pt-2 flex justify-between items-center">
+                <span className="font-semibold text-foreground">Total</span>
+                <span className="font-bold text-2xl text-primary">
+                  £{totalPrice.toFixed(2)}
+                </span>
+              </div>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Shipping calculated at checkout
-            </p>
+
             <Button
               variant="gold"
               className="w-full"

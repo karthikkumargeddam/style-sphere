@@ -33,10 +33,12 @@ const categories = [
 
 const CategoriesSection = () => {
   return (
-    <section className="py-20 bg-background">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <span className="inline-block px-4 py-2 bg-primary/20 text-primary rounded-full text-sm font-semibold uppercase tracking-wider mb-4">
+    <section className="py-20 bg-background relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent pointer-events-none" />
+
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="text-center mb-12 animate-fade-up">
+          <span className="inline-block px-4 py-2 glass-gold rounded-full text-sm font-semibold uppercase tracking-wider mb-4 shadow-depth-sm">
             Shop by Industry
           </span>
           <h2 className="font-display text-4xl sm:text-5xl font-bold text-foreground mb-4">
@@ -47,22 +49,21 @@ const CategoriesSection = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 perspective-lg">
           {categories.map((category, index) => (
             <Link
               key={category.name}
               to={category.link}
-              className="group card-industrial animate-fade-up"
-              style={{ animationDelay: `${index * 100}ms` }}
+              className={`group card-3d animate-fade-up animation-delay-${index * 100}`}
             >
               <div className="relative aspect-[3/4] overflow-hidden">
                 <img
                   src={category.image}
                   alt={category.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110 group-hover:rotate-1"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-6">
+                <div className="absolute bottom-0 left-0 right-0 p-6 transform transition-transform duration-300 group-hover:translate-y-[-4px]">
                   <h3 className="font-display text-2xl font-bold text-foreground mb-2">
                     {category.name}
                   </h3>

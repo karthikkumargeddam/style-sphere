@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { DiscountCode, calculateDiscount } from "@/lib/discounts";
 
 export interface CartItem {
   id: number;
@@ -17,6 +18,12 @@ interface CartContextType {
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
+  subtotal: number;
+  discountAmount: number;
+  shippingCost: number;
+  appliedDiscount: DiscountCode | null;
+  applyDiscount: (discount: DiscountCode) => void;
+  removeDiscount: () => void;
   isCartOpen: boolean;
   setIsCartOpen: (open: boolean) => void;
 }
@@ -31,6 +38,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     return stored ? JSON.parse(stored) : [];
   });
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [appliedDiscount, setAppliedDiscount] = useState<DiscountCode | null>(null);
 
   useEffect(() => {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
@@ -70,10 +78,28 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = items.reduce(
+  const subtotal = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
+
+  // Calculate shipping (free over £150)
+  const shippingCost = subtotal >= 150 ? 0 : 5.99;
+
+  // Calculate discount
+  const { discountAmount, shippingDiscount, finalTotal } = appliedDiscount
+    ? calculateDiscount(appliedDiscount, subtotal, shippingCost)
+    : { discountAmount: 0, shippingDiscount: 0, finalTotal: subtotal + shippingCost };
+
+  const totalPrice = finalTotal;
+
+  const applyDiscount = (discount: DiscountCode) => {
+    setAppliedDiscount(discount);
+  };
+
+  const removeDiscount = () => {
+    setAppliedDiscount(null);
+  };
 
   return (
     <CartContext.Provider
@@ -85,6 +111,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         clearCart,
         totalItems,
         totalPrice,
+        subtotal,
+        discountAmount,
+        shippingCost,
+        appliedDiscount,
+        applyDiscount,
+        removeDiscount,
         isCartOpen,
         setIsCartOpen,
       }}

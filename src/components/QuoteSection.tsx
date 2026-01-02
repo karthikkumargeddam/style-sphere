@@ -7,21 +7,31 @@ const features = [
     icon: Printer,
     title: "Custom Logo Printing",
     description: "High-quality embroidery and printing services to brand your workwear with your company logo.",
+    link: "/services/logo-printing",
   },
   {
     icon: Truck,
     title: "Fast UK Delivery",
     description: "Next day delivery available. Free shipping on all orders over £150.",
+    link: "/services/delivery",
   },
   {
     icon: Shield,
     title: "Quality Guaranteed",
     description: "All our products meet strict UK safety standards. 30-day hassle-free returns.",
+    link: "/services/quality-guarantee",
   },
   {
     icon: Clock,
     title: "Quick Turnaround",
     description: "From order to delivery in as little as 5 working days, even with custom branding.",
+    link: "/services/quick-turnaround",
+  },
+  {
+    icon: Truck,
+    title: "Bulk Orders",
+    description: "Special pricing for bulk orders. Perfect for outfitting entire teams with custom workwear.",
+    link: "/services/bulk-orders",
   },
 ];
 
@@ -30,7 +40,7 @@ const QuoteSection = () => {
     <section className="py-20 bg-background relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary/5 to-transparent" />
-      
+
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Left content */}
@@ -43,20 +53,25 @@ const QuoteSection = () => {
               <span className="text-gradient-gold block">Branded Uniforms</span>
             </h2>
             <p className="text-muted-foreground text-lg mb-8 max-w-lg">
-              Quality uniforms for hospitality, construction, trades, and offices. 
+              Quality uniforms for hospitality, construction, trades, and offices.
               Low minimum orders and fast UK-based turnaround.
             </p>
 
             <div className="grid sm:grid-cols-2 gap-6 mb-10">
               {features.map((feature) => (
-                <div key={feature.title} className="flex gap-4">
-                  <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <feature.icon className="w-6 h-6 text-primary" />
+                <div key={feature.title} className="flex flex-col gap-4 card-3d p-4 hover:scale-105 transition-transform">
+                  <div className="flex gap-4">
+                    <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <feature.icon className="w-6 h-6 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-foreground mb-1">{feature.title}</h4>
+                      <p className="text-sm text-muted-foreground">{feature.description}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-semibold text-foreground mb-1">{feature.title}</h4>
-                    <p className="text-sm text-muted-foreground">{feature.description}</p>
-                  </div>
+                  <Link to={feature.link} className="text-primary hover:text-primary/80 text-sm font-medium flex items-center gap-1 ml-16">
+                    Learn More →
+                  </Link>
                 </div>
               ))}
             </div>

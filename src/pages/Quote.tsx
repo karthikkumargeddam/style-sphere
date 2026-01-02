@@ -11,7 +11,7 @@ const Quote = () => {
         <div className="container mx-auto px-4">
           {/* Page Header */}
           <div className="text-center mb-16">
-            <span className="inline-block px-4 py-2 bg-primary/20 text-primary rounded-full text-sm font-semibold uppercase tracking-wider mb-4">
+            <span className="glass-gold inline-block px-4 py-2 rounded-full text-sm font-semibold uppercase tracking-wider mb-4 shadow-depth-sm">
               Get Started
             </span>
             <h1 className="font-display text-4xl sm:text-5xl font-bold text-foreground mb-4">
@@ -22,9 +22,9 @@ const Quote = () => {
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-16">
+          <div className="grid lg:grid-cols-2 gap-16 perspective-lg">
             {/* Quote Form */}
-            <div className="card-industrial p-8">
+            <div className="card-3d p-8">
               <h2 className="font-display text-2xl font-bold text-foreground mb-6">
                 Your Details
               </h2>
@@ -35,7 +35,7 @@ const Quote = () => {
                     <input
                       type="text"
                       placeholder="John"
-                      className="w-full px-4 py-3 bg-secondary border border-border rounded-md text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="neuro w-full px-4 py-3 bg-background border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary shadow-depth-sm transition-all duration-300"
                       required
                     />
                   </div>
@@ -132,13 +132,13 @@ const Quote = () => {
             {/* Info Section */}
             <div className="space-y-8">
               {/* Contact Info */}
-              <div className="card-industrial p-8">
+              <div className="card-3d p-8">
                 <h3 className="font-display text-xl font-bold text-foreground mb-6">
                   Prefer to Talk?
                 </h3>
                 <div className="space-y-4">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
+                    <div className="w-12 h-12 glass rounded-full flex items-center justify-center shadow-depth-sm transition-all duration-300 hover:scale-110 hover:shadow-depth-md">
                       <Phone className="w-6 h-6 text-primary" />
                     </div>
                     <div>
@@ -147,7 +147,7 @@ const Quote = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
+                    <div className="w-12 h-12 glass rounded-full flex items-center justify-center shadow-depth-sm transition-all duration-300 hover:scale-110 hover:shadow-depth-md">
                       <Mail className="w-6 h-6 text-primary" />
                     </div>
                     <div>
@@ -159,7 +159,7 @@ const Quote = () => {
               </div>
 
               {/* Features */}
-              <div className="card-industrial p-8">
+              <div className="card-3d p-8">
                 <h3 className="font-display text-xl font-bold text-foreground mb-6">
                   Why Request a Quote?
                 </h3>
@@ -170,8 +170,8 @@ const Quote = () => {
                     { icon: Truck, title: "Free Delivery", desc: "Free UK delivery on orders over £150" },
                     { icon: Clock, title: "Fast Turnaround", desc: "From quote to delivery in 5-7 working days" },
                   ].map((feature) => (
-                    <div key={feature.title} className="flex gap-4">
-                      <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <div key={feature.title} className="flex gap-4 group">
+                      <div className="w-10 h-10 glass rounded-lg flex items-center justify-center flex-shrink-0 shadow-depth-sm transition-all duration-300 group-hover:scale-110 group-hover:shadow-depth-md">
                         <feature.icon className="w-5 h-5 text-primary" />
                       </div>
                       <div>
@@ -186,7 +186,7 @@ const Quote = () => {
               {/* Trust badges */}
               <div className="grid grid-cols-3 gap-4">
                 {["10,000+ Customers", "98% Satisfaction", "15+ Years"].map((badge) => (
-                  <div key={badge} className="card-industrial p-4 text-center">
+                  <div key={badge} className="glass p-4 text-center shadow-depth-sm hover:shadow-depth-md transition-all duration-300 hover:scale-105">
                     <span className="text-sm font-medium text-foreground">{badge}</span>
                   </div>
                 ))}

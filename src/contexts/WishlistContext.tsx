@@ -16,6 +16,7 @@ interface WishlistContextType {
   items: WishlistItem[];
   addItem: (item: Omit<WishlistItem, "id">) => Promise<void>;
   removeItem: (productId: number) => Promise<void>;
+  clearWishlist: () => Promise<void>;
   isInWishlist: (productId: number) => boolean;
   isLoading: boolean;
 }
@@ -37,7 +38,7 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchWishlist = async () => {
     if (!user) return;
-    
+
     setIsLoading(true);
     try {
       const { data, error } = await supabase
@@ -106,6 +107,25 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const clearWishlist = async () => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from("wishlist")
+        .delete()
+        .eq("user_id", user.id);
+
+      if (error) throw error;
+
+      setItems([]);
+      toast.success("Wishlist cleared");
+    } catch (error) {
+      console.error("Error clearing wishlist:", error);
+      toast.error("Failed to clear wishlist");
+    }
+  };
+
   const isInWishlist = (productId: number) => {
     return items.some((item) => item.product_id === productId);
   };
@@ -116,6 +136,7 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
         items,
         addItem,
         removeItem,
+        clearWishlist,
         isInWishlist,
         isLoading,
       }}

@@ -28,11 +28,8 @@ import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { toast } from "sonner";
 import SizeGuideModal from "@/components/SizeGuideModal";
+import AISizeGuide from "@/components/AISizeGuide";
 
-import safetyVest from "@/assets/product-safety-vest.jpg";
-import workTrousers from "@/assets/product-work-trousers.jpg";
-import poloShirt from "@/assets/product-polo-shirt.jpg";
-import hardHat from "@/assets/product-hard-hat.jpg";
 
 /* ---------------- TYPES ---------------- */
 
@@ -59,6 +56,13 @@ const categories = [
   "Work Trousers",
   "Polo Shirts",
   "PPE Equipment",
+  "Jackets & Coats",
+  "Safety Boots",
+  "Hi-Vis Vests",
+  "Coveralls",
+  "Winter Workwear",
+  "Hospital Bundles",
+  "Workwear Bundles",
 ];
 
 const ratingOptions = [
@@ -70,47 +74,9 @@ const ratingOptions = [
 
 /* ---------------- MOCK DATA (REPLACE WITH SUPABASE LATER) ---------------- */
 
-const allProducts: Product[] = [
-  {
-    id: 1,
-    name: "Hi-Vis Safety Jacket",
-    category: "Safety Wear",
-    price: 34.99,
-    originalPrice: 44.99,
-    rating: 4.8,
-    reviews: 124,
-    image: safetyVest,
-    badge: "Best Seller",
-  },
-  {
-    id: 2,
-    name: "Heavy Duty Work Trousers",
-    category: "Work Trousers",
-    price: 29.99,
-    rating: 4.6,
-    reviews: 89,
-    image: workTrousers,
-  },
-  {
-    id: 3,
-    name: "Corporate Polo Shirt",
-    category: "Polo Shirts",
-    price: 18.99,
-    rating: 4.9,
-    reviews: 256,
-    image: poloShirt,
-    badge: "New",
-  },
-  {
-    id: 4,
-    name: "Safety Hard Hat",
-    category: "PPE Equipment",
-    price: 12.99,
-    rating: 4.7,
-    reviews: 178,
-    image: hardHat,
-  },
-];
+import { getAllProducts, getProductsPage } from "@/lib/products";
+
+const allProducts: Product[] = getAllProducts();
 
 /* ---------------- COMPONENT ---------------- */
 
@@ -125,6 +91,11 @@ const Products = () => {
   ]);
   const [minRating, setMinRating] = useState(0);
   const [sortBy, setSortBy] = useState<"newest" | "price-asc" | "price-desc" | "rating">("newest");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(24);
+  const [totalProducts, setTotalProducts] = useState(0);
+
+  const totalPages = Math.max(1, Math.ceil(totalProducts / pageSize));
 
   const { addItem } = useCart();
   const {
@@ -133,15 +104,45 @@ const Products = () => {
     isInWishlist,
   } = useWishlist();
 
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   /* ---------------- URL → CATEGORY SYNC ---------------- */
 
   useEffect(() => {
     const categoryFromUrl = searchParams.get("category");
-    if (categoryFromUrl && categories.includes(categoryFromUrl)) {
-      setSelectedCategory(categoryFromUrl);
+    if (!categoryFromUrl) return;
+
+    // Support both human-readable category names and short `cat_x` codes from the footer
+    const catMap: Record<string, string> = {
+      cat_1: "Safety Wear",
+      cat_2: "Work Trousers",
+      cat_3: "Safety Wear",
+      cat_4: "PPE Equipment",
+      cat_5: "All Products",
+      cat_6: "PPE Equipment",
+      cat_7: "Safety Wear",
+      cat_8: "All Products",
+    };
+
+    if (categoryFromUrl.startsWith("cat_") && catMap[categoryFromUrl]) {
+      setSelectedCategory(catMap[categoryFromUrl]);
+      return;
     }
+
+    if (categories.includes(categoryFromUrl)) {
+      setSelectedCategory(categoryFromUrl);
+      return;
+    }
+
+    const decoded = decodeURIComponent(categoryFromUrl).replace(/[-_]/g, " ");
+    const match = categories.find((c) => c.toLowerCase() === decoded.toLowerCase());
+    if (match) setSelectedCategory(match);
+  }, [searchParams]);
+
+  // Sync page query param
+  useEffect(() => {
+    const p = Number(searchParams.get("page") || "1");
+    setPage(Number.isNaN(p) ? 1 : p);
   }, [searchParams]);
 
   /* ---------------- HANDLERS ---------------- */
@@ -177,60 +178,33 @@ const Products = () => {
     setPriceRange([MIN_PRICE, MAX_PRICE]);
     setMinRating(0);
     setSortBy("newest");
-    window.history.replaceState({}, "", "/products");
+    setSearchParams({});
   };
 
   /* ---------------- FILTER LOGIC ---------------- */
 
-  const filteredProducts = useMemo(() => {
-    let result = allProducts.filter((product) => {
-      if (
-        searchQuery &&
-        !product.name.toLowerCase().includes(searchQuery.toLowerCase())
-      ) {
-        return false;
-      }
+  // Server-like paginated fetch (synchronous from lib)
+  const [pagedProducts, setPagedProducts] = useState<Product[]>([]);
 
-      if (
-        selectedCategory !== "All Products" &&
-        product.category !== selectedCategory
-      ) {
-        return false;
-      }
-
-      if (
-        product.price < priceRange[0] ||
-        product.price > priceRange[1]
-      ) {
-        return false;
-      }
-
-      if (product.rating < minRating) {
-        return false;
-      }
-
-      return true;
-    });
-
-    // Apply sorting
-    switch (sortBy) {
-      case "price-asc":
-        result = [...result].sort((a, b) => a.price - b.price);
-        break;
-      case "price-desc":
-        result = [...result].sort((a, b) => b.price - a.price);
-        break;
-      case "rating":
-        result = [...result].sort((a, b) => b.rating - a.rating);
-        break;
-      case "newest":
-      default:
-        // Keep original order (assuming newest first)
-        break;
-    }
-
-    return result;
+  useEffect(() => {
+    setPage(1);
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("page");
+    setSearchParams(params);
   }, [searchQuery, selectedCategory, priceRange, minRating, sortBy]);
+
+  useEffect(() => {
+    const filter = {
+      category: selectedCategory,
+      search: searchQuery,
+      minPrice: priceRange[0],
+      maxPrice: priceRange[1],
+      minRating,
+    };
+    const { items, total } = getProductsPage({ page, pageSize, filter });
+    setPagedProducts(items as Product[]);
+    setTotalProducts(total);
+  }, [page, pageSize, searchQuery, selectedCategory, priceRange, minRating, sortBy]);
 
   /* ---------------- JSX ---------------- */
 
@@ -275,19 +249,77 @@ const Products = () => {
                   </button>
                 </div>
 
-                {categories.map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setSelectedCategory(cat)}
-                    className={`block w-full text-left px-3 py-2 rounded ${
-                      selectedCategory === cat
-                        ? "bg-primary text-white"
-                        : "hover:bg-secondary"
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                ))}
+                {/* Categories */}
+                <div className="mb-6">
+                  <h3 className="font-semibold text-sm mb-3">Categories</h3>
+                  <div className="space-y-1">
+                    {categories.map((cat) => (
+                      <button
+                        key={cat}
+                        onClick={() => setSelectedCategory(cat)}
+                        className={`block w-full text-left px-3 py-2 rounded text-sm transition-all ${selectedCategory === cat
+                          ? "bg-primary text-white shadow-depth-sm"
+                          : "hover:bg-secondary"
+                          }`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Price Range */}
+                <div className="mb-6">
+                  <h3 className="font-semibold text-sm mb-3">Price Range</h3>
+                  <div className="px-2">
+                    <Slider
+                      value={priceRange}
+                      onValueChange={(value) => setPriceRange(value as [number, number])}
+                      min={MIN_PRICE}
+                      max={MAX_PRICE}
+                      step={5}
+                      className="mb-4"
+                    />
+                    <div className="flex items-center justify-between text-sm text-muted-foreground">
+                      <span>£{priceRange[0]}</span>
+                      <span>£{priceRange[1]}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Rating Filter */}
+                <div className="mb-6">
+                  <h3 className="font-semibold text-sm mb-3">Minimum Rating</h3>
+                  <div className="space-y-2">
+                    {ratingOptions.map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => setMinRating(option.value)}
+                        className={`block w-full text-left px-3 py-2 rounded text-sm transition-all ${minRating === option.value
+                          ? "bg-primary text-white shadow-depth-sm"
+                          : "hover:bg-secondary"
+                          }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          {option.value > 0 && (
+                            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                          )}
+                          {option.label}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Size Guide */}
+                <Button
+                  variant="outline"
+                  className="w-full gap-2"
+                  onClick={() => setIsSizeGuideOpen(true)}
+                >
+                  <Ruler className="w-4 h-4" />
+                  Size Guide
+                </Button>
               </div>
             </aside>
 
@@ -296,7 +328,7 @@ const Products = () => {
               {/* Sort and results count */}
               <div className="flex items-center justify-between mb-6">
                 <p className="text-muted-foreground">
-                  {filteredProducts.length} product{filteredProducts.length !== 1 ? "s" : ""} found
+                  {totalProducts} product{totalProducts !== 1 ? "s" : ""} found
                 </p>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">Sort by:</span>
@@ -315,127 +347,141 @@ const Products = () => {
               </div>
 
               <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
-              {filteredProducts.map((product) => (
-                <div
-                  key={product.id}
-                  className="group card-industrial overflow-hidden hover:shadow-lg transition-all duration-300"
-                >
-                  {/* Image with overlay */}
-                  <Link to={`/products/${product.id}`}>
-                    <div className="relative aspect-square overflow-hidden bg-muted">
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                      {product.badge && (
-                        <span
-                          className={`absolute top-3 left-3 px-2 py-1 text-xs font-semibold rounded ${
-                            product.badge === "Best Seller"
+                {pagedProducts.map((product) => (
+                  <div
+                    key={product.id}
+                    className="group card-industrial overflow-hidden hover:shadow-lg transition-all duration-300"
+                  >
+                    {/* Image with overlay */}
+                    <Link to={`/products/${product.id}`}>
+                      <div className="relative aspect-square overflow-hidden bg-muted">
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        {product.badge && (
+                          <span
+                            className={`absolute top-3 left-3 px-2 py-1 text-xs font-semibold rounded ${product.badge === "Best Seller"
                               ? "bg-primary text-primary-foreground"
                               : product.badge === "New"
-                              ? "bg-green-500 text-white"
-                              : "bg-red-500 text-white"
-                          }`}
-                        >
-                          {product.badge}
-                        </span>
-                      )}
-                      
-                      {/* Quick actions overlay */}
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                        <Button
-                          size="icon"
-                          variant="secondary"
-                          className="h-10 w-10"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleAddToCart(product);
-                          }}
-                        >
-                          <ShoppingCart className="w-5 h-5" />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="secondary"
-                          className={`h-10 w-10 ${
-                            isInWishlist(product.id) ? "text-red-500" : ""
-                          }`}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleToggleWishlist(product);
-                          }}
-                        >
-                          <Heart
-                            className={`w-5 h-5 ${
-                              isInWishlist(product.id) ? "fill-current" : ""
-                            }`}
-                          />
-                        </Button>
-                      </div>
-                    </div>
-                  </Link>
-
-                  {/* Product info */}
-                  <div className="p-5">
-                    <Link to={`/products/${product.id}`}>
-                      <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
-                        {product.category}
-                      </p>
-                      <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors mb-2 line-clamp-2">
-                        {product.name}
-                      </h3>
-                    </Link>
-
-                    {/* Rating */}
-                    <div className="flex items-center gap-1 mb-3">
-                      <div className="flex items-center">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`w-3.5 h-3.5 ${
-                              i < Math.floor(product.rating)
-                                ? "fill-yellow-400 text-yellow-400"
-                                : "text-muted-foreground"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                      <span className="text-xs text-muted-foreground ml-1">
-                        {product.rating} ({product.reviews} reviews)
-                      </span>
-                    </div>
-
-                    {/* Price and CTA */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-lg text-foreground">
-                          £{product.price.toFixed(2)}
-                        </span>
-                        {product.originalPrice && (
-                          <span className="text-sm text-muted-foreground line-through">
-                            £{product.originalPrice.toFixed(2)}
+                                ? "bg-green-500 text-white"
+                                : "bg-red-500 text-white"
+                              }`}
+                          >
+                            {product.badge}
                           </span>
                         )}
+
+                        {/* Quick actions overlay */}
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                          <Button
+                            size="icon"
+                            variant="secondary"
+                            className="h-10 w-10"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleAddToCart(product);
+                            }}
+                          >
+                            <ShoppingCart className="w-5 h-5" />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="secondary"
+                            className={`h-10 w-10 ${isInWishlist(product.id) ? "text-red-500" : ""
+                              }`}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleToggleWishlist(product);
+                            }}
+                          >
+                            <Heart
+                              className={`w-5 h-5 ${isInWishlist(product.id) ? "fill-current" : ""
+                                }`}
+                            />
+                          </Button>
+                        </div>
                       </div>
+                    </Link>
+
+                    {/* Product info */}
+                    <div className="p-5">
                       <Link to={`/products/${product.id}`}>
-                        <Button size="sm" variant="outline">
-                          View Details
-                        </Button>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
+                          {product.category}
+                        </p>
+                        <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors mb-2 line-clamp-2">
+                          {product.name}
+                        </h3>
                       </Link>
+
+                      {/* Rating */}
+                      <div className="flex items-center gap-1 mb-3">
+                        <div className="flex items-center">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`w-3.5 h-3.5 ${i < Math.floor(product.rating)
+                                ? "fill-yellow-400 text-yellow-400"
+                                : "text-muted-foreground"
+                                }`}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-xs text-muted-foreground ml-1">
+                          {product.rating} ({product.reviews} reviews)
+                        </span>
+                      </div>
+
+                      {/* Price and CTA */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-lg text-foreground">
+                            £{product.price.toFixed(2)}
+                          </span>
+                          {product.originalPrice && (
+                            <span className="text-sm text-muted-foreground line-through">
+                              £{product.originalPrice.toFixed(2)}
+                            </span>
+                          )}
+                        </div>
+                        <Link to={`/products/${product.id}`}>
+                          <Button size="sm" variant="outline">
+                            View Details
+                          </Button>
+                        </Link>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
 
-              {filteredProducts.length === 0 && (
-                <div className="col-span-full text-center py-12">
-                  <p className="text-muted-foreground text-lg">No products found matching your criteria.</p>
-                  <Button variant="outline" className="mt-4" onClick={clearFilters}>
-                    Clear Filters
+                {pagedProducts.length === 0 && (
+                  <div className="col-span-full text-center py-12">
+                    <p className="text-muted-foreground text-lg">No products found matching your criteria.</p>
+                    <Button variant="outline" className="mt-4" onClick={clearFilters}>
+                      Clear Filters
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              {/* Pagination */}
+              <div className="flex items-center justify-between col-span-full mt-6">
+                <div className="text-sm text-muted-foreground">Showing page {page} of {totalPages}</div>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1}>
+                    Previous
                   </Button>
+                  <Button variant="outline" size="sm" onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page === totalPages}>
+                    Next
+                  </Button>
+                  <select value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }} className="ml-3 border border-border rounded px-2 py-1 bg-background text-sm">
+                    <option value={12}>12 / page</option>
+                    <option value={24}>24 / page</option>
+                    <option value={48}>48 / page</option>
+                  </select>
                 </div>
-              )}
               </div>
             </section>
           </div>

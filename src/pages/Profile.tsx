@@ -75,7 +75,7 @@ const Profile = () => {
 
   const fetchOrders = async () => {
     if (!user) return;
-    
+
     setIsLoadingOrders(true);
     try {
       const { data, error } = await supabase
@@ -112,7 +112,7 @@ const Profile = () => {
 
   const fetchProfile = async () => {
     if (!user) return;
-    
+
     setIsLoading(true);
     try {
       const { data, error } = await supabase
@@ -182,7 +182,7 @@ const Profile = () => {
       <main className="pt-32 pb-20">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="mb-8">
-            <span className="inline-block px-4 py-2 bg-primary/20 text-primary rounded-full text-sm font-semibold uppercase tracking-wider mb-4">
+            <span className="glass-gold inline-block px-4 py-2 rounded-full text-sm font-semibold uppercase tracking-wider mb-4 shadow-depth-sm">
               My Account
             </span>
             <h1 className="font-display text-4xl font-bold text-foreground">
@@ -191,26 +191,26 @@ const Profile = () => {
           </div>
 
           <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-4">
-              <TabsTrigger value="profile" className="gap-2">
+            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-4 glass shadow-depth-md">
+              <TabsTrigger value="profile" className="gap-2 data-[state=active]:shadow-depth-sm">
                 <User className="w-4 h-4" />
                 <span className="hidden sm:inline">Profile</span>
               </TabsTrigger>
-              <TabsTrigger value="orders" className="gap-2">
+              <TabsTrigger value="orders" className="gap-2 data-[state=active]:shadow-depth-sm">
                 <Package className="w-4 h-4" />
                 <span className="hidden sm:inline">Orders</span>
               </TabsTrigger>
-              <TabsTrigger value="wishlist" className="gap-2">
+              <TabsTrigger value="wishlist" className="gap-2 data-[state=active]:shadow-depth-sm">
                 <Heart className="w-4 h-4" />
                 <span className="hidden sm:inline">Wishlist</span>
               </TabsTrigger>
-              <TabsTrigger value="sizes" className="gap-2">
+              <TabsTrigger value="sizes" className="gap-2 data-[state=active]:shadow-depth-sm">
                 <Settings className="w-4 h-4" />
                 <span className="hidden sm:inline">Sizes</span>
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="profile" className="card-industrial p-6">
+            <TabsContent value="profile" className="card-3d p-6">
               <h2 className="font-display text-xl font-semibold text-foreground mb-6">
                 Personal Information
               </h2>
@@ -280,7 +280,7 @@ const Profile = () => {
               )}
             </TabsContent>
 
-            <TabsContent value="orders" className="card-industrial p-6">
+            <TabsContent value="orders" className="card-3d p-6">
               <h2 className="font-display text-xl font-semibold text-foreground mb-6">
                 Order History ({orders.length} orders)
               </h2>
@@ -299,7 +299,7 @@ const Profile = () => {
               ) : (
                 <div className="space-y-4">
                   {orders.map((order) => (
-                    <div key={order.id} className="bg-secondary/50 rounded-lg p-4">
+                    <div key={order.id} className="glass p-4 rounded-lg shadow-depth-sm hover:shadow-depth-md transition-all duration-300">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
                         <div>
                           <p className="text-sm text-muted-foreground">
@@ -336,7 +336,7 @@ const Profile = () => {
               )}
             </TabsContent>
 
-            <TabsContent value="wishlist" className="card-industrial p-6">
+            <TabsContent value="wishlist" className="card-3d p-6">
               <h2 className="font-display text-xl font-semibold text-foreground mb-6">
                 My Wishlist ({wishlistItems.length} items)
               </h2>
@@ -351,25 +351,27 @@ const Profile = () => {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {wishlistItems.map((item) => (
-                    <div key={item.id} className="flex gap-4 p-4 bg-secondary/50 rounded-lg">
-                      <div className="w-20 h-20 rounded-md overflow-hidden bg-secondary flex-shrink-0">
-                        <img
-                          src={item.product_image}
-                          alt={item.product_name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-foreground truncate">{item.product_name}</h4>
-                        <p className="text-sm text-muted-foreground">{item.product_category}</p>
-                        <p className="text-primary font-bold mt-1">£{Number(item.product_price).toFixed(2)}</p>
-                        <div className="flex gap-2 mt-2">
-                          <Button size="sm" variant="gold" onClick={() => handleAddToCart(item)}>
-                            <ShoppingCart className="w-3 h-3" />
-                          </Button>
-                          <Button size="sm" variant="outline" onClick={() => removeFromWishlist(item.product_id)}>
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
+                    <div key={item.id} className="glass p-4 rounded-lg shadow-depth-sm hover:shadow-depth-md transition-all duration-300 group">
+                      <div className="flex gap-4">
+                        <div className="w-20 h-20 rounded-md overflow-hidden bg-secondary flex-shrink-0 transition-transform duration-300 group-hover:scale-110">
+                          <img
+                            src={item.product_image}
+                            alt={item.product_name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-foreground truncate">{item.product_name}</h4>
+                          <p className="text-sm text-muted-foreground">{item.product_category}</p>
+                          <p className="text-primary font-bold mt-1">£{Number(item.product_price).toFixed(2)}</p>
+                          <div className="flex gap-2 mt-2">
+                            <Button size="sm" variant="gold" onClick={() => handleAddToCart(item)}>
+                              <ShoppingCart className="w-3 h-3" />
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => removeFromWishlist(item.product_id)}>
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -378,7 +380,7 @@ const Profile = () => {
               )}
             </TabsContent>
 
-            <TabsContent value="sizes" className="card-industrial p-6">
+            <TabsContent value="sizes" className="card-3d p-6">
               <h2 className="font-display text-xl font-semibold text-foreground mb-6">
                 Saved Sizes & Preferences
               </h2>
