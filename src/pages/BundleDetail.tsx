@@ -8,6 +8,7 @@ import BundleProductSelector from "@/components/BundleProductSelector";
 import LogoCustomizer from "@/components/LogoCustomizer";
 import QualityGuarantee from "@/components/QualityGuarantee";
 import BundleFAQ from "@/components/BundleFAQ";
+import { AdvancedBundleBuilder } from "@/components/BundleBuilder";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
 import {
@@ -263,6 +264,21 @@ const BundleDetail = () => {
                             items={bundleItems}
                             onSelectionChange={setSelectedProducts}
                         />
+                    </div>
+
+                    {/* Mix & Match Bundle Builder */}
+                    <div className="mb-12">
+                        <div className="card-3d p-8">
+                            <div className="mb-6">
+                                <h2 className="font-display text-3xl font-bold mb-2">
+                                    🎨 Customize Your Bundle
+                                </h2>
+                                <p className="text-muted-foreground">
+                                    Mix and match products to create your perfect workwear bundle with automatic discounts!
+                                </p>
+                            </div>
+                            <AdvancedBundleBuilder />
+                        </div>
                     </div>
 
                     {/* Logo Customizer */}
