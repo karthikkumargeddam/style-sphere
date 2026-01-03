@@ -4,7 +4,16 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Package, TrendingDown, Sparkles, Star, Users, ChevronLeft, ChevronRight } from "lucide-react";
+import { Package, TrendingDown, Sparkles, Star, Users, ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { BundleBuilder } from "@/components/BundleBuilder";
 
 // Generate 100+ bundle products with varied images
 const generateBundles = () => {
@@ -187,6 +196,27 @@ const Bundles = () => {
             </div>
           </div>
 
+          {/* Create Custom Bundle Button */}
+          <div className="mb-8">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button size="lg" className="w-full sm:w-auto">
+                  <Plus className="w-5 h-5 mr-2" />
+                  Create Custom Bundle
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Build Your Custom Bundle</DialogTitle>
+                  <DialogDescription>
+                    Select products to create your perfect workwear bundle and save up to 25%!
+                  </DialogDescription>
+                </DialogHeader>
+                <BundleBuilder />
+              </DialogContent>
+            </Dialog>
+          </div>
+
           {/* Category Filter */}
           <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
             {categories.map(cat => (
@@ -290,8 +320,8 @@ const Bundles = () => {
                         <Star
                           key={i}
                           className={`w-3 h-3 ${i < Math.floor(bundle.rating)
-                              ? "fill-yellow-400 text-yellow-400"
-                              : "text-gray-300"
+                            ? "fill-yellow-400 text-yellow-400"
+                            : "text-gray-300"
                             }`}
                         />
                       ))}
