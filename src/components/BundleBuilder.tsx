@@ -88,7 +88,9 @@ export const AdvancedBundleBuilder = () => {
     const { addItem } = useCart();
 
     const basePrice = 169;
-    const totalPrice = basePrice * quantity;
+    // Calculate customization cost from logoData
+    const customizationCost = logoData?.totalCustomizationCost || 0;
+    const totalPrice = (basePrice + customizationCost) * quantity;
 
     const handleAddToCart = () => {
         if (!selectedPick5 || !selectedPick2 || !selectedPick1) {
@@ -388,6 +390,12 @@ export const AdvancedBundleBuilder = () => {
                         </div>
                         <div className="text-right">
                             <p className="text-sm text-muted-foreground">Total Price</p>
+                            {customizationCost > 0 && (
+                                <div className="text-xs text-muted-foreground mb-1">
+                                    <div>Base: £{(basePrice * quantity).toFixed(2)}</div>
+                                    <div>Customization: £{(customizationCost * quantity).toFixed(2)}</div>
+                                </div>
+                            )}
                             <p className="text-3xl font-bold text-primary">
                                 £{totalPrice.toFixed(2)}
                             </p>
