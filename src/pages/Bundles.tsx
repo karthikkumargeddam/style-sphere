@@ -344,32 +344,12 @@ const Bundles = () => {
                     </div>
                   </Link>
 
-                  {/* CTA Buttons */}
-                  <div className="space-y-2">
-                    <Link to={`/bundles/${bundle.id}`} className="block">
-                      <Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                        View Bundle
-                      </Button>
-                    </Link>
-
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="outline" className="w-full">
-                          <Plus className="w-4 h-4 mr-2" />
-                          Create Custom Bundle
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-                        <DialogHeader>
-                          <DialogTitle>Build Your Custom Bundle</DialogTitle>
-                          <DialogDescription>
-                            Select products to create your perfect workwear bundle and save up to 25%!
-                          </DialogDescription>
-                        </DialogHeader>
-                        <AdvancedBundleBuilder />
-                      </DialogContent>
-                    </Dialog>
-                  </div>
+                  {/* CTA Button */}
+                  <Link to={`/bundles/${bundle.id}`} className="block">
+                    <Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                      View Bundle
+                    </Button>
+                  </Link>
 
                   {/* Trust Badge */}
                   <div className="mt-3 pt-3 border-t flex items-center justify-center gap-2 text-xs text-muted-foreground">
