@@ -41,6 +41,8 @@ import ProductReviews from "@/components/ProductReviews";
 import WriteReview from "@/components/WriteReview";
 import StockIndicator from "@/components/StockIndicator";
 import { getProductReviews, getAverageRating, getTotalReviews } from "@/lib/mockReviews";
+import CustomizationPrompt from "@/components/CustomizationPrompt";
+import LogoCustomizer from "@/components/LogoCustomizer";
 
 // Extended product data with detailed descriptions
 const productDetails: Record<number, {
@@ -477,6 +479,9 @@ const ProductDetail = () => {
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
+  const [showCustomizationPrompt, setShowCustomizationPrompt] = useState(false);
+  const [wantsCustomization, setWantsCustomization] = useState(false);
+  const [customizationData, setCustomizationData] = useState<any>(null);
 
   const { addItem } = useCart();
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
@@ -522,6 +527,13 @@ const ProductDetail = () => {
       toast.error("Please select a color");
       return;
     }
+
+    // For individual items (not bundles), show customization prompt
+    if (!product.includedItems || product.includedItems.length === 0) {
+      setShowCustomizationPrompt(true);
+      return;
+    }
+
     // If this is a bundle, add each included item as separate cart line items
     if (product.includedItems && product.includedItems.length > 0) {
       const perItemPrice = Number((product.price / product.includedItems.length).toFixed(2));
@@ -550,6 +562,50 @@ const ProductDetail = () => {
       });
     }
     toast.success(`${quantity}x ${product.name} added to cart`);
+  };
+
+  const handleSelectBlank = () => {
+    setShowCustomizationPrompt(false);
+    setWantsCustomization(false);
+    // Add to cart without customization
+    for (let i = 0; i < quantity; i++) {
+      addItem({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        category: product.category,
+      });
+    }
+    toast.success(`${quantity}x ${product.name} added to cart`);
+  };
+
+  const handleSelectCustomized = () => {
+    setShowCustomizationPrompt(false);
+    setWantsCustomization(true);
+    // Scroll to customization section
+    setTimeout(() => {
+      const customizationSection = document.getElementById('customization-section');
+      if (customizationSection) {
+        customizationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  };
+
+  const handleCustomizedAddToCart = () => {
+    // Add to cart with customization data
+    for (let i = 0; i < quantity; i++) {
+      addItem({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        category: product.category,
+        // customizationData would be included here in a real implementation
+      });
+    }
+    toast.success(`${quantity}x Customized ${product.name} added to cart`);
+    setWantsCustomization(false);
   };
 
   const handleToggleWishlist = () => {
@@ -1048,6 +1104,55 @@ const ProductDetail = () => {
       </main>
       <Footer />
       <AISizeGuide isOpen={isSizeGuideOpen} onClose={() => setIsSizeGuideOpen(false)} />
+
+      {/* Customization Prompt */}
+      <CustomizationPrompt
+        isOpen={showCustomizationPrompt}
+        onClose={() => setShowCustomizationPrompt(false)}
+        onSelectBlank={handleSelectBlank}
+        onSelectCustomized={handleSelectCustomized}
+        productName={product.name}
+      />
+
+      {/* Customization Section */}
+      {wantsCustomization && (
+        <div id="customization-section" className="fixed inset-0 bg-background z-50 overflow-y-auto">
+          <div className="container mx-auto px-4 py-8">
+            <div className="max-w-4xl mx-auto">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="font-display text-3xl font-bold">Customize Your {product.name}</h2>
+                <Button variant="outline" onClick={() => setWantsCustomization(false)}>
+                  Cancel
+                </Button>
+              </div>
+
+              <LogoCustomizer
+                onLogoChange={setCustomizationData}
+                isBundle={false}
+                bundleItemCount={1}
+              />
+
+              <div className="mt-8 flex gap-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setWantsCustomization(false)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="gold"
+                  onClick={handleCustomizedAddToCart}
+                  className="flex-1"
+                  disabled={!customizationData}
+                >
+                  Add Customized Item to Cart
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

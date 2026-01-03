@@ -5,16 +5,75 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Upload, Type, Image as ImageIcon, Check } from "lucide-react";
 import { toast } from "sonner";
+import ApplicationTypeSelector from "@/components/ApplicationTypeSelector";
+import LogoSetupOptions from "@/components/LogoSetupOptions";
+import TextLogoDesigner from "@/components/TextLogoDesigner";
+import LogoPlacementSelector from "@/components/LogoPlacementSelector";
+import PricingCalculator from "@/components/PricingCalculator";
+import {
+    ApplicationType,
+    PrintSetupOption,
+    EmbroiderySetupOption,
+    LogoType,
+    LogoPlacementPosition,
+    TextLogoData,
+    CustomizationData,
+} from "@/types/customization";
 
 interface LogoCustomizerProps {
-    onLogoChange: (logoData: any) => void;
+    onLogoChange: (customizationData: CustomizationData) => void;
+    isBundle?: boolean;
+    bundleItemCount?: number;
 }
 
-const LogoCustomizer = ({ onLogoChange }: LogoCustomizerProps) => {
-    const [logoMethod, setLogoMethod] = useState<"existing" | "text" | "upload">("upload");
-    const [textLogo, setTextLogo] = useState("");
+const LogoCustomizer = ({ onLogoChange, isBundle = false, bundleItemCount = 1 }: LogoCustomizerProps) => {
+    // Application Type
+    const [applicationType, setApplicationType] = useState<ApplicationType>('EMBROIDERY');
+
+    // Setup Options
+    const [setupOption, setSetupOption] = useState<PrintSetupOption | EmbroiderySetupOption>('not_required');
+
+    // Logo Type
+    const [logoType, setLogoType] = useState<LogoType>('image');
+
+    // Text Logo Data
+    const [textLogoData, setTextLogoData] = useState<TextLogoData>({
+        lines: ['', ''],
+        font: 'standard',
+        color: '#FFFFFF',
+    });
+
+    // Image Upload
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-    const [logoPositions, setLogoPositions] = useState<string[]>([]);
+
+    // Logo Placements
+    const [selectedPlacements, setSelectedPlacements] = useState<LogoPlacementPosition[]>([]);
+
+    // Update parent component whenever customization changes
+    const updateCustomization = () => {
+        const customizationData: CustomizationData = {
+            isCustomized: true,
+            logoSetup: {
+                applicationType,
+                setupOption,
+                setupFee: applicationType === 'EMBROIDERY' && setupOption === '1_to_10_items_15_fee' ? 15 : 0,
+            },
+            primaryLogo: {
+                logoType,
+                textData: logoType === 'text' ? textLogoData : undefined,
+                imageFile: logoType === 'image' ? uploadedFile || undefined : undefined,
+            },
+            placements: selectedPlacements.map(position => ({
+                position,
+                price: 0, // Will be calculated by PricingCalculator
+                isFree: isBundle && position === 'left_chest',
+            })),
+            additionalLogos: [],
+            totalCustomizationCost: 0, // Will be calculated
+        };
+
+        onLogoChange(customizationData);
+    };
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -24,7 +83,7 @@ const LogoCustomizer = ({ onLogoChange }: LogoCustomizerProps) => {
                 return;
             }
             setUploadedFile(file);
-            onLogoChange({ type: "upload", file });
+            updateCustomization();
             toast.success("Logo uploaded successfully!");
         }
     };
@@ -38,151 +97,159 @@ const LogoCustomizer = ({ onLogoChange }: LogoCustomizerProps) => {
         const file = e.dataTransfer.files[0];
         if (file && file.type.startsWith("image/")) {
             setUploadedFile(file);
-            onLogoChange({ type: "upload", file });
+            updateCustomization();
             toast.success("Logo uploaded successfully!");
         } else {
             toast.error("Please upload an image file");
         }
     };
 
-    const handleTextLogoChange = (text: string) => {
-        setTextLogo(text);
-        onLogoChange({ type: "text", text });
-    };
-
-    const togglePosition = (position: string) => {
-        const newPositions = logoPositions.includes(position)
-            ? logoPositions.filter(p => p !== position)
-            : [...logoPositions, position];
-        setLogoPositions(newPositions);
-    };
-
-    const positions = [
-        { id: "left-chest", label: "Left Chest" },
-        { id: "right-chest", label: "Right Chest" },
-        { id: "back", label: "Back" },
-        { id: "sleeve-left", label: "Left Sleeve" },
-        { id: "sleeve-right", label: "Right Sleeve" },
-    ];
-
     return (
-        <div className="card-3d p-6">
-            <h3 className="font-display text-2xl font-bold mb-2">Add Your Logo(s)</h3>
-            <p className="text-muted-foreground mb-6">
-                Choose a method of adding your logo
-            </p>
+        <div className="space-y-8">
+            <div className="card-3d p-6">
+                <h3 className="font-display text-2xl font-bold mb-2">Customize Your Logo</h3>
+                <p className="text-muted-foreground mb-6">
+                    Follow the steps below to add your branding to your items
+                </p>
 
-            {/* Logo Assignment Style */}
-            <div className="mb-6">
-                <h4 className="font-semibold mb-3">Choose Logo Assignment Style</h4>
-                <Tabs value={logoMethod} onValueChange={(v) => setLogoMethod(v as any)} className="w-full">
-                    <TabsList className="grid w-full grid-cols-3">
-                        <TabsTrigger value="existing">
-                            <ImageIcon className="w-4 h-4 mr-2" />
-                            Existing Logo
-                        </TabsTrigger>
-                        <TabsTrigger value="text">
-                            <Type className="w-4 h-4 mr-2" />
-                            Text Logo
-                        </TabsTrigger>
-                        <TabsTrigger value="upload">
-                            <Upload className="w-4 h-4 mr-2" />
-                            Upload Logo
-                        </TabsTrigger>
-                    </TabsList>
-
-                    {/* Existing Logo */}
-                    <TabsContent value="existing" className="mt-4">
-                        <div className="border-2 border-dashed rounded-lg p-8 text-center">
-                            <ImageIcon className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                            <p className="text-muted-foreground mb-4">
-                                Select from your previously uploaded logos
-                            </p>
-                            <Button variant="outline">Browse Saved Logos</Button>
+                {/* Step 1: Application Type */}
+                <div className="mb-8">
+                    <div className="flex items-center gap-2 mb-4">
+                        <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold">
+                            1
                         </div>
-                    </TabsContent>
+                        <h4 className="font-semibold text-lg">Choose Application Method</h4>
+                    </div>
+                    <ApplicationTypeSelector
+                        value={applicationType}
+                        onChange={(type) => {
+                            setApplicationType(type);
+                            setSetupOption('not_required');
+                            updateCustomization();
+                        }}
+                    />
+                </div>
 
-                    {/* Text Logo */}
-                    <TabsContent value="text" className="mt-4">
-                        <div className="space-y-4">
-                            <div>
-                                <Label htmlFor="text-logo">Enter Your Text</Label>
-                                <Input
-                                    id="text-logo"
-                                    placeholder="Enter company name or text"
-                                    value={textLogo}
-                                    onChange={(e) => handleTextLogoChange(e.target.value)}
-                                    className="mt-2"
+                {/* Step 2: Setup Options */}
+                <div className="mb-8">
+                    <div className="flex items-center gap-2 mb-4">
+                        <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold">
+                            2
+                        </div>
+                        <h4 className="font-semibold text-lg">Logo Setup</h4>
+                    </div>
+                    <LogoSetupOptions
+                        applicationType={applicationType}
+                        value={setupOption}
+                        onChange={(option) => {
+                            setSetupOption(option);
+                            updateCustomization();
+                        }}
+                    />
+                </div>
+
+                {/* Step 3: Logo Type */}
+                <div className="mb-8">
+                    <div className="flex items-center gap-2 mb-4">
+                        <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold">
+                            3
+                        </div>
+                        <h4 className="font-semibold text-lg">Logo Type</h4>
+                    </div>
+
+                    <Tabs value={logoType} onValueChange={(v) => setLogoType(v as LogoType)} className="w-full">
+                        <TabsList className="grid w-full grid-cols-2 mb-6">
+                            <TabsTrigger value="image">
+                                <ImageIcon className="w-4 h-4 mr-2" />
+                                Image/Logo File
+                            </TabsTrigger>
+                            <TabsTrigger value="text">
+                                <Type className="w-4 h-4 mr-2" />
+                                Text Only
+                            </TabsTrigger>
+                        </TabsList>
+
+                        {/* Image Upload */}
+                        <TabsContent value="image" className="mt-4">
+                            <div
+                                onDragOver={handleDragOver}
+                                onDrop={handleDrop}
+                                className="border-2 border-dashed rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer"
+                            >
+                                <input
+                                    type="file"
+                                    id="logo-upload"
+                                    accept="image/*,.pdf"
+                                    onChange={handleFileUpload}
+                                    className="hidden"
                                 />
-                            </div>
-                            {textLogo && (
-                                <div className="border rounded-lg p-6 bg-secondary/20 text-center">
-                                    <p className="text-2xl font-bold">{textLogo}</p>
-                                    <p className="text-sm text-muted-foreground mt-2">Logo Preview</p>
-                                </div>
-                            )}
-                        </div>
-                    </TabsContent>
-
-                    {/* Upload Logo */}
-                    <TabsContent value="upload" className="mt-4">
-                        <div
-                            onDragOver={handleDragOver}
-                            onDrop={handleDrop}
-                            className="border-2 border-dashed rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer"
-                        >
-                            <input
-                                type="file"
-                                id="logo-upload"
-                                accept="image/*"
-                                onChange={handleFileUpload}
-                                className="hidden"
-                            />
-                            <label htmlFor="logo-upload" className="cursor-pointer">
-                                <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                                <p className="font-semibold mb-2">
-                                    Drag 'n' Drop Some Files Here, or Click To Select Files
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                    Supported formats: PNG, JPG, SVG (Max 5MB)
-                                </p>
-                            </label>
-                            {uploadedFile && (
-                                <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                                    <p className="text-sm text-green-700 dark:text-green-400 flex items-center justify-center gap-2">
-                                        <Check className="w-4 h-4" />
-                                        {uploadedFile.name} uploaded successfully
+                                <label htmlFor="logo-upload" className="cursor-pointer">
+                                    <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                                    <p className="font-semibold mb-2">
+                                        Drag 'n' Drop Your Logo Here, or Click To Select
                                     </p>
-                                </div>
-                            )}
-                        </div>
-                    </TabsContent>
-                </Tabs>
-            </div>
-
-            {/* Logo Positions */}
-            <div>
-                <h4 className="font-semibold mb-3">Select Logo Positions</h4>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {positions.map(position => (
-                        <button
-                            key={position.id}
-                            onClick={() => togglePosition(position.id)}
-                            className={`p-4 border-2 rounded-lg transition-all ${logoPositions.includes(position.id)
-                                    ? "border-primary bg-primary/10"
-                                    : "border-border hover:border-primary/50"
-                                }`}
-                        >
-                            <div className="flex items-center justify-between">
-                                <span className="font-medium">{position.label}</span>
-                                {logoPositions.includes(position.id) && (
-                                    <Check className="w-5 h-5 text-primary" />
+                                    <p className="text-sm text-muted-foreground mb-2">
+                                        {applicationType === 'PRINT'
+                                            ? 'Supported formats: PNG, JPG, PDF (Max 5MB)'
+                                            : 'Supported formats: DST, EMB, or PNG/JPG for conversion (Max 5MB)'}
+                                    </p>
+                                </label>
+                                {uploadedFile && (
+                                    <div className="mt-4 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                                        <p className="text-sm text-green-700 dark:text-green-400 flex items-center justify-center gap-2">
+                                            <Check className="w-4 h-4" />
+                                            {uploadedFile.name} uploaded successfully
+                                        </p>
+                                    </div>
                                 )}
                             </div>
-                        </button>
-                    ))}
+                        </TabsContent>
+
+                        {/* Text Logo */}
+                        <TabsContent value="text" className="mt-4">
+                            <TextLogoDesigner
+                                value={textLogoData}
+                                onChange={(data) => {
+                                    setTextLogoData(data);
+                                    updateCustomization();
+                                }}
+                            />
+                        </TabsContent>
+                    </Tabs>
+                </div>
+
+                {/* Step 4: Logo Placement */}
+                <div className="mb-8">
+                    <div className="flex items-center gap-2 mb-4">
+                        <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold">
+                            4
+                        </div>
+                        <h4 className="font-semibold text-lg">Select Placement</h4>
+                    </div>
+                    <LogoPlacementSelector
+                        selectedPlacements={selectedPlacements}
+                        onChange={(placements) => {
+                            setSelectedPlacements(placements);
+                            updateCustomization();
+                        }}
+                        applicationType={applicationType}
+                        isBundle={isBundle}
+                        bundleItemCount={bundleItemCount}
+                    />
                 </div>
             </div>
+
+            {/* Pricing Summary */}
+            {selectedPlacements.length > 0 && (
+                <PricingCalculator
+                    applicationType={applicationType}
+                    setupOption={setupOption}
+                    placements={selectedPlacements}
+                    isBundle={isBundle}
+                    bundleItemCount={bundleItemCount}
+                    showShipping={false}
+                />
+            )}
         </div>
     );
 };

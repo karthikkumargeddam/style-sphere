@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 interface BundleItem {
     category: string;
     name: string;
+    itemCode?: string; // Added item code
     sizes: string[];
     colors: string[];
     image: string;
@@ -18,14 +19,14 @@ interface BundleProductSelectorProps {
 }
 
 const BundleProductSelector = ({ items, onSelectionChange }: BundleProductSelectorProps) => {
-    const [selections, setSelections] = useState<Record<string, { size: string; color: string }>>({});
+    const [selections, setSelections] = useState<Record<string, { size: string; color: string; quantity: number }>>({});
 
     const categories = [...new Set(items.map(item => item.category))];
 
     const handleSizeChange = (itemName: string, size: string) => {
         const newSelections = {
             ...selections,
-            [itemName]: { ...selections[itemName], size }
+            [itemName]: { ...selections[itemName], size, color: selections[itemName]?.color || '', quantity: selections[itemName]?.quantity || 1 }
         };
         setSelections(newSelections);
         onSelectionChange(newSelections);
@@ -34,7 +35,16 @@ const BundleProductSelector = ({ items, onSelectionChange }: BundleProductSelect
     const handleColorChange = (itemName: string, color: string) => {
         const newSelections = {
             ...selections,
-            [itemName]: { ...selections[itemName], color }
+            [itemName]: { ...selections[itemName], color, size: selections[itemName]?.size || '', quantity: selections[itemName]?.quantity || 1 }
+        };
+        setSelections(newSelections);
+        onSelectionChange(newSelections);
+    };
+
+    const handleQuantityChange = (itemName: string, quantity: number) => {
+        const newSelections = {
+            ...selections,
+            [itemName]: { ...selections[itemName], quantity, size: selections[itemName]?.size || '', color: selections[itemName]?.color || '' }
         };
         setSelections(newSelections);
         onSelectionChange(newSelections);
@@ -42,7 +52,10 @@ const BundleProductSelector = ({ items, onSelectionChange }: BundleProductSelect
 
     return (
         <div className="card-3d p-6">
-            <h3 className="font-display text-2xl font-bold mb-6">Select Your Products</h3>
+            <h3 className="font-display text-2xl font-bold mb-2">Start Your Order Here</h3>
+            <p className="text-muted-foreground mb-6">
+                Select size, color, and quantity for each item in your bundle
+            </p>
 
             <Tabs defaultValue={categories[0]} className="w-full">
                 <TabsList className="grid w-full grid-cols-3 mb-6">
@@ -75,14 +88,19 @@ const BundleProductSelector = ({ items, onSelectionChange }: BundleProductSelect
                                             <div className="flex items-start justify-between">
                                                 <div>
                                                     <h4 className="font-semibold text-lg">{item.name}</h4>
+                                                    {item.itemCode && (
+                                                        <p className="text-sm text-muted-foreground">
+                                                            Item Code: <span className="font-mono font-medium">{item.itemCode}</span>
+                                                        </p>
+                                                    )}
                                                     <Badge variant="outline" className="mt-1">
                                                         Item {index + 1}
                                                     </Badge>
                                                 </div>
                                             </div>
 
-                                            {/* Size and Color Selectors */}
-                                            <div className="grid grid-cols-2 gap-3">
+                                            {/* Size, Color, and Quantity Selectors */}
+                                            <div className="grid grid-cols-3 gap-3">
                                                 {/* Size Selector */}
                                                 <div>
                                                     <Label className="text-sm mb-2 block">Size</Label>
@@ -123,6 +141,26 @@ const BundleProductSelector = ({ items, onSelectionChange }: BundleProductSelect
                                                                         />
                                                                         {color}
                                                                     </div>
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+
+                                                {/* Quantity Selector */}
+                                                <div>
+                                                    <Label className="text-sm mb-2 block">Quantity</Label>
+                                                    <Select
+                                                        onValueChange={(value) => handleQuantityChange(item.name, parseInt(value))}
+                                                        defaultValue="1"
+                                                    >
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Qty" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {[1, 2, 3, 4, 5, 10, 15, 20].map(qty => (
+                                                                <SelectItem key={qty} value={qty.toString()}>
+                                                                    {qty}
                                                                 </SelectItem>
                                                             ))}
                                                         </SelectContent>

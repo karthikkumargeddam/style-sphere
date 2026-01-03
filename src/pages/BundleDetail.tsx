@@ -39,13 +39,14 @@ const BundleDetail = () => {
         rating: 4.8,
         reviews: 1247,
         image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800",
-        description: "Perfect starter bundle for your team. Includes 6 premium workwear items with free professional logo embroidery. Choose from our selection of polo shirts, sweatshirts, and softshell jackets.",
+        description: "Perfect starter bundle for your team. Includes 6 premium workwear items with free professional logo embroidery on Left Chest. Bundle includes: 3x Polo Shirts (your choice), 2x Sweatshirts (Crew Neck or Hoodie), 1x Softshell Jacket. Choose from our selection of high-quality garments and customize sizes and colors for each item.",
         features: [
-            "Free professional logo embroidery",
-            "Mix and match sizes and colors",
-            "Premium quality materials",
+            "Free professional logo embroidery on Left Chest",
+            "Mix and match sizes and colors for each item",
+            "Premium quality materials from trusted brands",
             "60-day satisfaction guarantee",
-            "Fast turnaround time"
+            "Fast turnaround time (5-7 business days)",
+            "Bulk pricing available for larger orders"
         ]
     };
 
@@ -54,42 +55,48 @@ const BundleDetail = () => {
         {
             category: "Polo Shirts",
             name: "Premium Cotton Polo",
-            sizes: ["XS", "S", "M", "L", "XL", "XXL", "3XL"],
+            itemCode: "RX101",
+            sizes: ["XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL"],
             colors: ["Black", "Navy", "White", "Grey", "Red"],
             image: "https://images.unsplash.com/photo-1586363104862-3a5e2ab60d99?w=400"
         },
         {
             category: "Polo Shirts",
             name: "Performance Polo Shirt",
-            sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+            itemCode: "GD01",
+            sizes: ["XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL"],
             colors: ["Black", "Navy", "Royal Blue", "White"],
             image: "https://images.unsplash.com/photo-1586363104862-3a5e2ab60d99?w=400"
         },
         {
             category: "Sweatshirts",
             name: "Classic Crew Neck Sweatshirt",
-            sizes: ["S", "M", "L", "XL", "XXL", "3XL"],
+            itemCode: "SW200",
+            sizes: ["S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL", "6XL"],
             colors: ["Black", "Navy", "Grey", "Burgundy"],
             image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400"
         },
         {
             category: "Sweatshirts",
             name: "Zip-Up Hoodie",
-            sizes: ["S", "M", "L", "XL", "XXL"],
+            itemCode: "HD350",
+            sizes: ["S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL"],
             colors: ["Black", "Navy", "Charcoal", "Green"],
             image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400"
         },
         {
             category: "Softshell Jackets",
             name: "Premium Softshell Jacket",
-            sizes: ["S", "M", "L", "XL", "XXL", "3XL"],
+            itemCode: "JK500",
+            sizes: ["S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL", "6XL", "7XL", "8XL"],
             colors: ["Black", "Navy", "Grey", "Red"],
             image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400"
         },
         {
             category: "Softshell Jackets",
             name: "Lightweight Gilet",
-            sizes: ["S", "M", "L", "XL", "XXL"],
+            itemCode: "GL400",
+            sizes: ["S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL"],
             colors: ["Black", "Navy", "Charcoal"],
             image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400"
         }
@@ -100,7 +107,8 @@ const BundleDetail = () => {
             id: bundle.id,
             name: bundle.name,
             price: bundle.price * quantity,
-            image: bundle.image
+            image: bundle.image,
+            category: "Bundles"
         });
         toast.success(`${bundle.name} added to cart!`);
     };
@@ -259,7 +267,11 @@ const BundleDetail = () => {
 
                     {/* Logo Customizer */}
                     <div className="mb-12">
-                        <LogoCustomizer onLogoChange={setLogoData} />
+                        <LogoCustomizer
+                            onLogoChange={setLogoData}
+                            isBundle={true}
+                            bundleItemCount={6}
+                        />
                     </div>
 
                     {/* Quality Guarantee */}
