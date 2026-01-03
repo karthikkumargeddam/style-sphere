@@ -18,6 +18,7 @@ import {
     LogoPlacementPosition,
     TextLogoData,
     CustomizationData,
+    calculatePlacementPrice,
 } from "@/types/customization";
 
 interface LogoCustomizerProps {
@@ -61,6 +62,19 @@ const LogoCustomizer = ({
 
     // Update parent component whenever customization changes
     const updateCustomization = () => {
+        // Calculate placement prices
+        const placementsWithPrices = selectedPlacements.map(position => {
+            const price = calculatePlacementPrice(position, applicationType, isBundle, bundleItemCount);
+            return {
+                position,
+                price,
+                isFree: isBundle && position === 'left_chest',
+            };
+        });
+
+        // Calculate total customization cost
+        const totalCustomizationCost = placementsWithPrices.reduce((sum, placement) => sum + placement.price, 0);
+
         const customizationData: CustomizationData = {
             isCustomized: true,
             logoSetup: {
@@ -73,13 +87,9 @@ const LogoCustomizer = ({
                 textData: logoType === 'text' ? textLogoData : undefined,
                 imageFile: logoType === 'image' ? uploadedFile || undefined : undefined,
             },
-            placements: selectedPlacements.map(position => ({
-                position,
-                price: 0, // Will be calculated by PricingCalculator
-                isFree: isBundle && position === 'left_chest',
-            })),
+            placements: placementsWithPrices,
             additionalLogos: [],
-            totalCustomizationCost: 0, // Will be calculated
+            totalCustomizationCost,
         };
 
         onLogoChange(customizationData);
