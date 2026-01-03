@@ -8,6 +8,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/contexts/CartContext";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import LogoCustomizer from "@/components/LogoCustomizer";
 
 interface BundleOption {
     id: string;
@@ -60,6 +68,8 @@ export const AdvancedBundleBuilder = () => {
     const [selectedEmbroidery, setSelectedEmbroidery] = useState<string[]>([]);
     const [additionalInfo, setAdditionalInfo] = useState("");
     const [quantity, setQuantity] = useState(1);
+    const [showLogoCustomizer, setShowLogoCustomizer] = useState(false);
+    const [logoData, setLogoData] = useState<any>(null);
     const { toast } = useToast();
     const { addItem } = useCart();
 
@@ -309,11 +319,21 @@ export const AdvancedBundleBuilder = () => {
                                     : "hover:bg-accent"
                                     }`}
                                 onClick={() => {
-                                    setSelectedEmbroidery((prev) =>
-                                        prev.includes(area.id)
-                                            ? prev.filter((id) => id !== area.id)
-                                            : [...prev, area.id]
-                                    );
+                                    if (area.id === "custom") {
+                                        // Open logo customizer for custom embroidery
+                                        setShowLogoCustomizer(true);
+                                        // Also select it
+                                        if (!selectedEmbroidery.includes(area.id)) {
+                                            setSelectedEmbroidery((prev) => [...prev, area.id]);
+                                        }
+                                    } else {
+                                        // Normal toggle for other areas
+                                        setSelectedEmbroidery((prev) =>
+                                            prev.includes(area.id)
+                                                ? prev.filter((id) => id !== area.id)
+                                                : [...prev, area.id]
+                                        );
+                                    }
                                 }}
                             >
                                 <div className="text-4xl mb-2">{area.icon}</div>
@@ -384,6 +404,23 @@ export const AdvancedBundleBuilder = () => {
                     </Button>
                 </Card>
             </div>
+
+            {/* Logo Customizer Dialog */}
+            <Dialog open={showLogoCustomizer} onOpenChange={setShowLogoCustomizer}>
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>Customize Your Logo</DialogTitle>
+                        <DialogDescription>
+                            Upload your logo and customize the embroidery details for your bundle
+                        </DialogDescription>
+                    </DialogHeader>
+                    <LogoCustomizer
+                        onLogoChange={setLogoData}
+                        isBundle={true}
+                        bundleItemCount={8}
+                    />
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };
