@@ -60,6 +60,7 @@ import Breadcrumbs from "./components/Breadcrumbs";
 import RefundPolicy from "./pages/RefundPolicy";
 import ShippingPolicy from "./pages/ShippingPolicy";
 import Payment from "./pages/Payment";
+import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -96,6 +97,7 @@ const App = () => {
                       <RecentlyViewedProvider>
                         <CartProvider>
                           <BrowserRouter>
+                            <ScrollToTop />
                             <Breadcrumbs />
                             <Routes>
                               {/* Public route - Auth page */}
