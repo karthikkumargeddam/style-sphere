@@ -328,7 +328,7 @@ export const AdvancedBundleBuilder = () => {
                         {EMBROIDERY_AREAS.map((area) => (
                             <Card
                                 key={area.id}
-                                className={`p-4 cursor-pointer transition-all hover:shadow-lg text-center ${selectedEmbroidery.includes(area.id)
+                                className={`p-4 cursor-pointer transition-all hover:shadow-lg text-center relative ${selectedEmbroidery.includes(area.id)
                                     ? "ring-2 ring-primary bg-primary/5"
                                     : "hover:bg-accent"
                                     }`}
@@ -343,6 +343,18 @@ export const AdvancedBundleBuilder = () => {
                                     }
                                 }}
                             >
+                                {/* Remove button for selected areas */}
+                                {selectedEmbroidery.includes(area.id) && (
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setSelectedEmbroidery((prev) => prev.filter(id => id !== area.id));
+                                        }}
+                                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
+                                    >
+                                        ×
+                                    </button>
+                                )}
                                 <div className="text-4xl mb-2">{area.icon}</div>
                                 <p className="text-xs font-medium">{area.name}</p>
                                 {selectedEmbroidery.includes(area.id) && (
