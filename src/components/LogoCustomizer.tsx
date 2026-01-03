@@ -25,13 +25,15 @@ interface LogoCustomizerProps {
     isBundle?: boolean;
     bundleItemCount?: number;
     defaultPlacement?: LogoPlacementPosition;
+    onComplete?: () => void;
 }
 
 const LogoCustomizer = ({
     onLogoChange,
     isBundle = false,
     bundleItemCount = 1,
-    defaultPlacement
+    defaultPlacement,
+    onComplete
 }: LogoCustomizerProps) => {
     // Application Type
     const [applicationType, setApplicationType] = useState<ApplicationType>('EMBROIDERY');
@@ -257,6 +259,19 @@ const LogoCustomizer = ({
                     bundleItemCount={bundleItemCount}
                     showShipping={false}
                 />
+            )}
+
+            {/* Confirm Button */}
+            {onComplete && (
+                <div className="mt-6">
+                    <Button
+                        onClick={onComplete}
+                        size="lg"
+                        className="w-full"
+                    >
+                        Confirm & Add to Bundle
+                    </Button>
+                </div>
             )}
         </div>
     );

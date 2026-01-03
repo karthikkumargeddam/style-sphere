@@ -434,6 +434,7 @@ export const AdvancedBundleBuilder = () => {
                         isBundle={true}
                         bundleItemCount={8}
                         defaultPlacement={currentEmbroideryArea ? mapAreaToPlacement(currentEmbroideryArea) : undefined}
+                        onComplete={() => setShowLogoCustomizer(false)}
                     />
                 </DialogContent>
             </Dialog>
