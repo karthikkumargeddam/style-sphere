@@ -319,20 +319,11 @@ export const AdvancedBundleBuilder = () => {
                                     : "hover:bg-accent"
                                     }`}
                                 onClick={() => {
-                                    if (area.id === "custom") {
-                                        // Open logo customizer for custom embroidery
-                                        setShowLogoCustomizer(true);
-                                        // Also select it
-                                        if (!selectedEmbroidery.includes(area.id)) {
-                                            setSelectedEmbroidery((prev) => [...prev, area.id]);
-                                        }
-                                    } else {
-                                        // Normal toggle for other areas
-                                        setSelectedEmbroidery((prev) =>
-                                            prev.includes(area.id)
-                                                ? prev.filter((id) => id !== area.id)
-                                                : [...prev, area.id]
-                                        );
+                                    // Open logo customizer for any embroidery area
+                                    setShowLogoCustomizer(true);
+                                    // Also select it
+                                    if (!selectedEmbroidery.includes(area.id)) {
+                                        setSelectedEmbroidery((prev) => [...prev, area.id]);
                                     }
                                 }}
                             >
