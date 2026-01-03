@@ -13,7 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { BundleBuilder } from "@/components/BundleBuilder";
+import { AdvancedBundleBuilder } from "@/components/BundleBuilder";
 
 // Generate 100+ bundle products with varied images
 const generateBundles = () => {
@@ -212,7 +212,7 @@ const Bundles = () => {
                     Select products to create your perfect workwear bundle and save up to 25%!
                   </DialogDescription>
                 </DialogHeader>
-                <BundleBuilder />
+                <AdvancedBundleBuilder />
               </DialogContent>
             </Dialog>
           </div>
