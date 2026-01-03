@@ -43,6 +43,16 @@ import StockIndicator from "@/components/StockIndicator";
 import { getProductReviews, getAverageRating, getTotalReviews } from "@/lib/mockReviews";
 import CustomizationPrompt from "@/components/CustomizationPrompt";
 import LogoCustomizer from "@/components/LogoCustomizer";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { AdvancedBundleBuilder } from "@/components/BundleBuilder";
+import { Plus } from "lucide-react";
 
 // Extended product data with detailed descriptions
 const productDetails: Record<number, {
@@ -833,6 +843,29 @@ const ProductDetail = () => {
                   <Heart className={`w-5 h-5 ${isInWishlist(product.id) ? "fill-primary text-primary" : ""}`} />
                 </Button>
               </div>
+
+              {/* Create Custom Bundle Button */}
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-full gap-2 border-2 border-primary/50 hover:bg-primary/10"
+                  >
+                    <Plus className="w-5 h-5" />
+                    Create Custom Bundle
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Build Your Custom Bundle</DialogTitle>
+                    <DialogDescription>
+                      Select products to create your perfect workwear bundle and save up to 25%!
+                    </DialogDescription>
+                  </DialogHeader>
+                  <AdvancedBundleBuilder />
+                </DialogContent>
+              </Dialog>
 
               {/* Share Product */}
               <div className="flex items-center justify-between pt-4 border-t border-border">
