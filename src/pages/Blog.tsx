@@ -87,6 +87,15 @@ const Blog = () => {
         ? blogPosts
         : blogPosts.filter(post => post.category === selectedCategory);
 
+    const handleCategoryClick = (category: string) => {
+        setSelectedCategory(category);
+        // Scroll to blog grid section
+        const blogGrid = document.getElementById('blog-grid');
+        if (blogGrid) {
+            blogGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    };
+
     return (
         <div className="min-h-screen bg-background">
             <Header />
@@ -110,7 +119,7 @@ const Blog = () => {
                         {categories.map((category) => (
                             <button
                                 key={category}
-                                onClick={() => setSelectedCategory(category)}
+                                onClick={() => handleCategoryClick(category)}
                                 className={`glass px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-depth-sm hover:shadow-depth-md ${selectedCategory === category
                                     ? "bg-primary text-white"
                                     : "hover:bg-primary hover:text-white"
@@ -166,7 +175,7 @@ const Blog = () => {
                     </div>
 
                     {/* Blog Grid */}
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div id="blog-grid" className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
                         {filteredPosts.slice(selectedCategory === "All Posts" ? 1 : 0).map((post) => (
                             <Link
                                 key={post.id}
