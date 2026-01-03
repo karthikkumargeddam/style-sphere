@@ -69,6 +69,7 @@ export const AdvancedBundleBuilder = () => {
     const [additionalInfo, setAdditionalInfo] = useState("");
     const [quantity, setQuantity] = useState(1);
     const [showLogoCustomizer, setShowLogoCustomizer] = useState(false);
+    const [currentEmbroideryArea, setCurrentEmbroideryArea] = useState<string | null>(null);
     const [logoData, setLogoData] = useState<any>(null);
     const { toast } = useToast();
     const { addItem } = useCart();
@@ -108,17 +109,11 @@ export const AdvancedBundleBuilder = () => {
 
         // Add to cart
         addItem({
-            id: `custom-bundle-${Date.now()}`, // Unique ID for each custom bundle
+            id: Date.now(), // Unique ID for each custom bundle (timestamp as number)
             name: "Prime Mix and Match Bundle",
             price: totalPrice,
             image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600&q=80",
-            category: "Custom Bundles",
-            customization: {
-                bundle: bundleDescription,
-                embroidery: embroideryAreas,
-                additionalInfo: additionalInfo || "None",
-                quantity: quantity
-            }
+            category: "Custom Bundles"
         });
 
         toast({
@@ -319,6 +314,8 @@ export const AdvancedBundleBuilder = () => {
                                     : "hover:bg-accent"
                                     }`}
                                 onClick={() => {
+                                    // Set the current area being customized
+                                    setCurrentEmbroideryArea(area.id);
                                     // Open logo customizer for any embroidery area
                                     setShowLogoCustomizer(true);
                                     // Also select it
@@ -400,9 +397,15 @@ export const AdvancedBundleBuilder = () => {
             <Dialog open={showLogoCustomizer} onOpenChange={setShowLogoCustomizer}>
                 <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
-                        <DialogTitle>Customize Your Logo</DialogTitle>
+                        <DialogTitle>
+                            Customize Logo - {currentEmbroideryArea
+                                ? EMBROIDERY_AREAS.find(a => a.id === currentEmbroideryArea)?.name
+                                : 'Embroidery'}
+                        </DialogTitle>
                         <DialogDescription>
-                            Upload your logo and customize the embroidery details for your bundle
+                            Upload your logo and customize the embroidery details for the {currentEmbroideryArea
+                                ? EMBROIDERY_AREAS.find(a => a.id === currentEmbroideryArea)?.name.toLowerCase()
+                                : 'selected area'}
                         </DialogDescription>
                     </DialogHeader>
                     <LogoCustomizer
