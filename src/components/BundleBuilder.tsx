@@ -123,17 +123,20 @@ export const AdvancedBundleBuilder = () => {
         ).join(", ");
 
         // Add to cart
-        addItem({
+        const cartItem = {
             id: Date.now(), // Unique ID for each custom bundle (timestamp as number)
             name: "Prime Mix and Match Bundle",
             price: totalPrice,
             image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600&q=80",
             category: "Custom Bundles"
-        });
+        };
+
+        console.log("Adding bundle to cart:", cartItem);
+        addItem(cartItem);
 
         toast({
-            title: "Bundle Added to Cart!",
-            description: `Prime Mix and Match Bundle (×${quantity}) added successfully`,
+            title: "✅ Bundle Added to Cart!",
+            description: `${bundleDescription} - £${totalPrice.toFixed(2)} (×${quantity})`,
         });
 
         // Reset form
@@ -143,6 +146,7 @@ export const AdvancedBundleBuilder = () => {
         setSelectedEmbroidery([]);
         setAdditionalInfo("");
         setQuantity(1);
+        setLogoData(null);
     };
 
     return (
