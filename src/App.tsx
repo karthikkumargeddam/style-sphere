@@ -41,6 +41,7 @@ import NotFound from "./pages/NotFound";
 import ServiceDetail from "./pages/ServiceDetail";
 import Dashboard from "./pages/Dashboard";
 import OrderHistory from "./pages/OrderHistory";
+import OrderDetail from "./pages/OrderDetail";
 import Returns from "./pages/Returns";
 import SavedAddresses from "./pages/SavedAddresses";
 import AccountSettings from "./pages/AccountSettings";
@@ -131,6 +132,7 @@ const App = () => {
                               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                               <Route path="/profile/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                               <Route path="/profile/orders" element={<ProtectedRoute><OrderHistory /></ProtectedRoute>} />
+                              <Route path="/profile/orders/:orderId" element={<ProtectedRoute><OrderDetail /></ProtectedRoute>} />
                               <Route path="/profile/addresses" element={<ProtectedRoute><SavedAddresses /></ProtectedRoute>} />
                               <Route path="/profile/settings" element={<ProtectedRoute><AccountSettings /></ProtectedRoute>} />
                               <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
