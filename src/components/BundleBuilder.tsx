@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { useCart } from "@/contexts/CartContext";
 
 interface BundleOption {
     id: string;
@@ -60,6 +61,7 @@ export const AdvancedBundleBuilder = () => {
     const [additionalInfo, setAdditionalInfo] = useState("");
     const [quantity, setQuantity] = useState(1);
     const { toast } = useToast();
+    const { addItem } = useCart();
 
     const basePrice = 169;
     const totalPrice = basePrice * quantity;
@@ -83,10 +85,44 @@ export const AdvancedBundleBuilder = () => {
             return;
         }
 
+        // Get selected option names
+        const pick5Option = BUNDLE_OPTIONS.pick5.find(o => o.id === selectedPick5);
+        const pick2Option = BUNDLE_OPTIONS.pick2.find(o => o.id === selectedPick2);
+        const pick1Option = BUNDLE_OPTIONS.pick1.find(o => o.id === selectedPick1);
+
+        // Create bundle description
+        const bundleDescription = `${pick5Option?.name}, ${pick2Option?.name}, ${pick1Option?.name}`;
+        const embroideryAreas = selectedEmbroidery.map(id =>
+            EMBROIDERY_AREAS.find(area => area.id === id)?.name
+        ).join(", ");
+
+        // Add to cart
+        addItem({
+            id: `custom-bundle-${Date.now()}`, // Unique ID for each custom bundle
+            name: "Prime Mix and Match Bundle",
+            price: totalPrice,
+            image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600&q=80",
+            category: "Custom Bundles",
+            customization: {
+                bundle: bundleDescription,
+                embroidery: embroideryAreas,
+                additionalInfo: additionalInfo || "None",
+                quantity: quantity
+            }
+        });
+
         toast({
             title: "Bundle Added to Cart!",
             description: `Prime Mix and Match Bundle (×${quantity}) added successfully`,
         });
+
+        // Reset form
+        setSelectedPick5(null);
+        setSelectedPick2(null);
+        setSelectedPick1(null);
+        setSelectedEmbroidery([]);
+        setAdditionalInfo("");
+        setQuantity(1);
     };
 
     return (
@@ -149,8 +185,8 @@ export const AdvancedBundleBuilder = () => {
                             <Card
                                 key={option.id}
                                 className={`p-4 cursor-pointer transition-all hover:shadow-lg ${selectedPick5 === option.id
-                                        ? "ring-2 ring-primary bg-primary/5"
-                                        : "hover:bg-accent"
+                                    ? "ring-2 ring-primary bg-primary/5"
+                                    : "hover:bg-accent"
                                     }`}
                                 onClick={() => setSelectedPick5(option.id)}
                             >
@@ -190,8 +226,8 @@ export const AdvancedBundleBuilder = () => {
                             <Card
                                 key={option.id}
                                 className={`p-4 cursor-pointer transition-all hover:shadow-lg ${selectedPick2 === option.id
-                                        ? "ring-2 ring-primary bg-primary/5"
-                                        : "hover:bg-accent"
+                                    ? "ring-2 ring-primary bg-primary/5"
+                                    : "hover:bg-accent"
                                     }`}
                                 onClick={() => setSelectedPick2(option.id)}
                             >
@@ -231,8 +267,8 @@ export const AdvancedBundleBuilder = () => {
                             <Card
                                 key={option.id}
                                 className={`p-4 cursor-pointer transition-all hover:shadow-lg ${selectedPick1 === option.id
-                                        ? "ring-2 ring-primary bg-primary/5"
-                                        : "hover:bg-accent"
+                                    ? "ring-2 ring-primary bg-primary/5"
+                                    : "hover:bg-accent"
                                     }`}
                                 onClick={() => setSelectedPick1(option.id)}
                             >
@@ -269,8 +305,8 @@ export const AdvancedBundleBuilder = () => {
                             <Card
                                 key={area.id}
                                 className={`p-4 cursor-pointer transition-all hover:shadow-lg text-center ${selectedEmbroidery.includes(area.id)
-                                        ? "ring-2 ring-primary bg-primary/5"
-                                        : "hover:bg-accent"
+                                    ? "ring-2 ring-primary bg-primary/5"
+                                    : "hover:bg-accent"
                                     }`}
                                 onClick={() => {
                                     setSelectedEmbroidery((prev) =>
