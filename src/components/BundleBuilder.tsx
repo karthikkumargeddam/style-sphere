@@ -16,6 +16,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import LogoCustomizer from "@/components/LogoCustomizer";
+import { LogoPlacementPosition } from "@/types/customization";
 
 interface BundleOption {
     id: string;
@@ -60,6 +61,18 @@ const EMBROIDERY_AREAS: EmbroideryArea[] = [
     { id: "sleeve", name: "Sleeve", icon: "💪" },
     { id: "custom", name: "Custom", icon: "✨" },
 ];
+
+// Map embroidery area IDs to LogoPlacementPosition
+const mapAreaToPlacement = (areaId: string): LogoPlacementPosition | undefined => {
+    const mapping: Record<string, LogoPlacementPosition> = {
+        "left-chest": "left_chest",
+        "right-chest": "right_chest",
+        "back": "large_back",
+        "sleeve": "left_sleeve", // Default to left sleeve
+        "custom": "left_chest" // Default to left chest for custom
+    };
+    return mapping[areaId];
+};
 
 export const AdvancedBundleBuilder = () => {
     const [selectedPick5, setSelectedPick5] = useState<string | null>(null);
@@ -412,6 +425,7 @@ export const AdvancedBundleBuilder = () => {
                         onLogoChange={setLogoData}
                         isBundle={true}
                         bundleItemCount={8}
+                        defaultPlacement={currentEmbroideryArea ? mapAreaToPlacement(currentEmbroideryArea) : undefined}
                     />
                 </DialogContent>
             </Dialog>

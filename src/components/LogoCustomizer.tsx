@@ -24,9 +24,15 @@ interface LogoCustomizerProps {
     onLogoChange: (customizationData: CustomizationData) => void;
     isBundle?: boolean;
     bundleItemCount?: number;
+    defaultPlacement?: LogoPlacementPosition;
 }
 
-const LogoCustomizer = ({ onLogoChange, isBundle = false, bundleItemCount = 1 }: LogoCustomizerProps) => {
+const LogoCustomizer = ({
+    onLogoChange,
+    isBundle = false,
+    bundleItemCount = 1,
+    defaultPlacement
+}: LogoCustomizerProps) => {
     // Application Type
     const [applicationType, setApplicationType] = useState<ApplicationType>('EMBROIDERY');
 
@@ -46,8 +52,10 @@ const LogoCustomizer = ({ onLogoChange, isBundle = false, bundleItemCount = 1 }:
     // Image Upload
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
-    // Logo Placements
-    const [selectedPlacements, setSelectedPlacements] = useState<LogoPlacementPosition[]>([]);
+    // Logo Placements - pre-select if defaultPlacement is provided
+    const [selectedPlacements, setSelectedPlacements] = useState<LogoPlacementPosition[]>(
+        defaultPlacement ? [defaultPlacement] : []
+    );
 
     // Update parent component whenever customization changes
     const updateCustomization = () => {
