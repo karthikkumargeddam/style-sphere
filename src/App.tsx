@@ -100,18 +100,34 @@ const App = () => {
                             <ScrollToTop />
                             <Breadcrumbs />
                             <Routes>
-                              {/* Public route - Auth page */}
+                              {/* Public routes - no authentication required */}
                               <Route path="/auth" element={<Auth />} />
                               <Route path="/reset-password" element={<ResetPassword />} />
+                              <Route path="/" element={<Index />} />
+                              <Route path="/products" element={<Products />} />
+                              <Route path="/products/:id" element={<ProductDetail />} />
+                              <Route path="/bundles" element={<Bundles />} />
+                              <Route path="/bundles/:id" element={<ProductDetail />} />
+                              <Route path="/quote" element={<Quote />} />
+                              <Route path="/services/:serviceId" element={<ServiceDetail />} />
+                              <Route path="/wishlist/shared/:data" element={<SharedWishlist />} />
+                              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                              <Route path="/terms-conditions" element={<TermsOfService />} />
+                              <Route path="/cookie-policy" element={<CookiePolicy />} />
+                              <Route path="/refund-policy" element={<RefundPolicy />} />
+                              <Route path="/shipping-policy" element={<ShippingPolicy />} />
+                              <Route path="/contact" element={<Contact />} />
+                              <Route path="/faq" element={<FAQ />} />
+                              <Route path="/blog" element={<Blog />} />
+                              <Route path="/blog/:id" element={<BlogPost />} />
+                              <Route path="/logo-digitization" element={<LogoDigitization />} />
+                              <Route path="/loyalty-program" element={<LoyaltyProgram />} />
+                              <Route path="/customer-gallery" element={<CustomerPhotoGallery />} />
+                              <Route path="/referral-program" element={<ReferralProgram />} />
+                              <Route path="/flash-sales" element={<FlashSales />} />
+                              <Route path="/logo-gallery" element={<LogoGallery />} />
 
                               {/* Protected routes - require authentication */}
-                              <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-                              <Route path="/products" element={<ProtectedRoute><Products /></ProtectedRoute>} />
-                              <Route path="/products/:id" element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
-                              <Route path="/bundles" element={<ProtectedRoute><Bundles /></ProtectedRoute>} />
-                              <Route path="/bundles/:id" element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
-                              <Route path="/quote" element={<ProtectedRoute><Quote /></ProtectedRoute>} />
-                              <Route path="/services/:serviceId" element={<ProtectedRoute><ServiceDetail /></ProtectedRoute>} />
                               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                               <Route path="/profile/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
                               <Route path="/profile/orders" element={<ProtectedRoute><OrderHistory /></ProtectedRoute>} />
@@ -120,25 +136,10 @@ const App = () => {
                               <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
                               <Route path="/returns" element={<ProtectedRoute><Returns /></ProtectedRoute>} />
                               <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
-                              <Route path="/wishlist/shared/:data" element={<SharedWishlist />} />
                               <Route path="/checkout-success" element={<ProtectedRoute><CheckoutSuccess /></ProtectedRoute>} />
-                              <Route path="/privacy-policy" element={<ProtectedRoute><PrivacyPolicy /></ProtectedRoute>} />
-                              <Route path="/terms-conditions" element={<ProtectedRoute><TermsOfService /></ProtectedRoute>} />
-                              <Route path="/cookie-policy" element={<ProtectedRoute><CookiePolicy /></ProtectedRoute>} />
-                              <Route path="/refund-policy" element={<ProtectedRoute><RefundPolicy /></ProtectedRoute>} />
-                              <Route path="/shipping-policy" element={<ProtectedRoute><ShippingPolicy /></ProtectedRoute>} />
                               <Route path="/payment" element={<ProtectedRoute><Payment /></ProtectedRoute>} />
-                              <Route path="/contact" element={<ProtectedRoute><Contact /></ProtectedRoute>} />
-                              <Route path="/faq" element={<ProtectedRoute><FAQ /></ProtectedRoute>} />
-                              <Route path="/blog" element={<ProtectedRoute><Blog /></ProtectedRoute>} />
-                              <Route path="/blog/:id" element={<ProtectedRoute><BlogPost /></ProtectedRoute>} />
-                              <Route path="/logo-digitization" element={<ProtectedRoute><LogoDigitization /></ProtectedRoute>} />
-                              <Route path="/loyalty-program" element={<ProtectedRoute><LoyaltyProgram /></ProtectedRoute>} />
-                              <Route path="/customer-gallery" element={<ProtectedRoute><CustomerPhotoGallery /></ProtectedRoute>} />
-                              <Route path="/referral-program" element={<ProtectedRoute><ReferralProgram /></ProtectedRoute>} />
-                              <Route path="/flash-sales" element={<ProtectedRoute><FlashSales /></ProtectedRoute>} />
-                              <Route path="/logo-gallery" element={<ProtectedRoute><LogoGallery /></ProtectedRoute>} />
-                              <Route path="*" element={<ProtectedRoute><NotFound /></ProtectedRoute>} />
+
+                              <Route path="*" element={<NotFound />} />
                             </Routes>
                             <CartSidebar />
                             <AIChatbot />
