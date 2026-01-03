@@ -83,13 +83,17 @@ export const AdvancedBundleBuilder = () => {
     const [quantity, setQuantity] = useState(1);
     const [showLogoCustomizer, setShowLogoCustomizer] = useState(false);
     const [currentEmbroideryArea, setCurrentEmbroideryArea] = useState<string | null>(null);
-    const [logoData, setLogoData] = useState<any>(null);
+    // Store customization data for each area separately
+    const [areaCustomizations, setAreaCustomizations] = useState<Record<string, any>>({});
     const { toast } = useToast();
     const { addItem } = useCart();
 
     const basePrice = 169;
-    // Calculate customization cost from logoData
-    const customizationCost = logoData?.totalCustomizationCost || 0;
+    // Calculate total customization cost from ALL selected areas
+    const customizationCost = Object.values(areaCustomizations).reduce(
+        (total, data) => total + (data?.totalCustomizationCost || 0),
+        0
+    );
     const totalPrice = (basePrice + customizationCost) * quantity;
 
     const handleAddToCart = () => {
@@ -146,7 +150,7 @@ export const AdvancedBundleBuilder = () => {
         setSelectedEmbroidery([]);
         setAdditionalInfo("");
         setQuantity(1);
-        setLogoData(null);
+        setAreaCustomizations({});
     };
 
     return (
@@ -446,7 +450,14 @@ export const AdvancedBundleBuilder = () => {
                         </DialogDescription>
                     </DialogHeader>
                     <LogoCustomizer
-                        onLogoChange={setLogoData}
+                        onLogoChange={(data) => {
+                            if (currentEmbroideryArea) {
+                                setAreaCustomizations(prev => ({
+                                    ...prev,
+                                    [currentEmbroideryArea]: data
+                                }));
+                            }
+                        }}
                         isBundle={true}
                         bundleItemCount={8}
                         defaultPlacement={currentEmbroideryArea ? mapAreaToPlacement(currentEmbroideryArea) : undefined}
