@@ -254,97 +254,122 @@ const Bundles = () => {
           {/* Bundle Grid */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
             {currentBundles.map((bundle) => (
-              <Link
+              <div
                 key={bundle.id}
-                to={`/bundles/${bundle.id}`}
                 className="card-3d group overflow-hidden hover:shadow-2xl transition-all duration-300"
               >
                 {/* Composite Bundle Image */}
-                <div className="relative p-6 bg-gradient-to-br from-secondary/50 to-secondary/20 aspect-square">
-                  {/* Stacked Images - Bundle Style */}
-                  <div className="relative h-full flex items-center justify-center">
-                    {bundle.images.slice(0, 3).map((img, i) => (
-                      <div
-                        key={i}
-                        className="absolute transition-all duration-300 group-hover:scale-110"
-                        style={{
-                          zIndex: 10 - i,
-                          transform: `translateX(${(i - 1) * 25}px) translateY(${i * 10}px) rotate(${(i - 1) * 5}deg)`,
-                          width: '70%',
-                          height: '70%'
-                        }}
-                      >
-                        <img
-                          src={img}
-                          alt={`${bundle.name} item ${i + 1}`}
-                          className="w-full h-full object-cover rounded-lg shadow-depth-md border-2 border-background"
-                        />
-                      </div>
-                    ))}
-                  </div>
+                <Link to={`/bundles/${bundle.id}`}>
+                  <div className="relative p-6 bg-gradient-to-br from-secondary/50 to-secondary/20 aspect-square">
+                    {/* Stacked Images - Bundle Style */}
+                    <div className="relative h-full flex items-center justify-center">
+                      {bundle.images.slice(0, 3).map((img, i) => (
+                        <div
+                          key={i}
+                          className="absolute transition-all duration-300 group-hover:scale-110"
+                          style={{
+                            zIndex: 10 - i,
+                            transform: `translateX(${(i - 1) * 25}px) translateY(${i * 10}px) rotate(${(i - 1) * 5}deg)`,
+                            width: '70%',
+                            height: '70%'
+                          }}
+                        >
+                          <img
+                            src={img}
+                            alt={`${bundle.name} item ${i + 1}`}
+                            className="w-full h-full object-cover rounded-lg shadow-depth-md border-2 border-background"
+                          />
+                        </div>
+                      ))}
+                    </div>
 
-                  {/* Badges */}
-                  {bundle.badge && (
-                    <Badge className="absolute top-4 left-4 bg-primary text-primary-foreground shadow-depth-sm">
-                      {bundle.badge}
+                    {/* Badges */}
+                    {bundle.badge && (
+                      <Badge className="absolute top-4 left-4 bg-primary text-primary-foreground shadow-depth-sm">
+                        {bundle.badge}
+                      </Badge>
+                    )}
+
+                    <Badge className="absolute top-4 right-4 bg-green-500 text-white shadow-depth-sm">
+                      <TrendingDown className="w-3 h-3 mr-1" />
+                      Save £{bundle.savings.toFixed(0)}
                     </Badge>
-                  )}
 
-                  <Badge className="absolute top-4 right-4 bg-green-500 text-white shadow-depth-sm">
-                    <TrendingDown className="w-3 h-3 mr-1" />
-                    Save £{bundle.savings.toFixed(0)}
-                  </Badge>
-
-                  <Badge className="absolute bottom-4 left-4 glass-gold shadow-depth-sm">
-                    <Sparkles className="w-3 h-3 mr-1" />
-                    {bundle.itemCount} Items
-                  </Badge>
-                </div>
+                    <Badge className="absolute bottom-4 left-4 glass-gold shadow-depth-sm">
+                      <Sparkles className="w-3 h-3 mr-1" />
+                      {bundle.itemCount} Items
+                    </Badge>
+                  </div>
+                </Link>
 
                 {/* Bundle Info */}
                 <div className="p-6">
-                  <div className="mb-2">
-                    <Badge variant="outline" className="text-xs mb-2">
-                      {bundle.category}
-                    </Badge>
-                    <h3 className="font-display text-lg font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2">
-                      {bundle.name}
-                    </h3>
-                    <p className="text-sm text-primary font-semibold">{bundle.subtitle}</p>
-                  </div>
-
-                  {/* Rating */}
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="flex">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`w-3 h-3 ${i < Math.floor(bundle.rating)
-                            ? "fill-yellow-400 text-yellow-400"
-                            : "text-gray-300"
-                            }`}
-                        />
-                      ))}
+                  <Link to={`/bundles/${bundle.id}`}>
+                    <div className="mb-2">
+                      <Badge variant="outline" className="text-xs mb-2">
+                        {bundle.category}
+                      </Badge>
+                      <h3 className="font-display text-lg font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2">
+                        {bundle.name}
+                      </h3>
+                      <p className="text-sm text-primary font-semibold">{bundle.subtitle}</p>
                     </div>
-                    <span className="text-xs text-muted-foreground">
-                      ({bundle.reviews})
-                    </span>
-                  </div>
 
-                  {/* Price */}
-                  <div className="flex items-baseline gap-2 mb-4">
-                    <span className="text-2xl font-bold text-foreground">
-                      £{bundle.price.toFixed(2)}
-                    </span>
-                    <span className="text-sm text-muted-foreground line-through">
-                      £{bundle.originalPrice.toFixed(2)}
-                    </span>
-                  </div>
+                    {/* Rating */}
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="flex">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`w-3 h-3 ${i < Math.floor(bundle.rating)
+                              ? "fill-yellow-400 text-yellow-400"
+                              : "text-gray-300"
+                              }`}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        ({bundle.reviews})
+                      </span>
+                    </div>
 
-                  {/* CTA */}
-                  <Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                    View Bundle
-                  </Button>
+                    {/* Price */}
+                    <div className="flex items-baseline gap-2 mb-4">
+                      <span className="text-2xl font-bold text-foreground">
+                        £{bundle.price.toFixed(2)}
+                      </span>
+                      <span className="text-sm text-muted-foreground line-through">
+                        £{bundle.originalPrice.toFixed(2)}
+                      </span>
+                    </div>
+                  </Link>
+
+                  {/* CTA Buttons */}
+                  <div className="space-y-2">
+                    <Link to={`/bundles/${bundle.id}`} className="block">
+                      <Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                        View Bundle
+                      </Button>
+                    </Link>
+
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" className="w-full">
+                          <Plus className="w-4 h-4 mr-2" />
+                          Create Custom Bundle
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle>Build Your Custom Bundle</DialogTitle>
+                          <DialogDescription>
+                            Select products to create your perfect workwear bundle and save up to 25%!
+                          </DialogDescription>
+                        </DialogHeader>
+                        <AdvancedBundleBuilder />
+                      </DialogContent>
+                    </Dialog>
+                  </div>
 
                   {/* Trust Badge */}
                   <div className="mt-3 pt-3 border-t flex items-center justify-center gap-2 text-xs text-muted-foreground">
@@ -352,7 +377,7 @@ const Bundles = () => {
                     <span>Free Logo • Fast Delivery</span>
                   </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
 
