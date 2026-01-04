@@ -497,6 +497,14 @@ const ProductDetail = () => {
   const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
   const { addToRecentlyViewed } = useRecentlyViewed();
 
+  const [activeImage, setActiveImage] = useState<string>("");
+
+  useEffect(() => {
+    if (product) {
+      setActiveImage(product.image);
+    }
+  }, [product]);
+
   // Track product view
   useEffect(() => {
     if (product) {
@@ -659,24 +667,43 @@ const ProductDetail = () => {
           <div className="grid lg:grid-cols-2 gap-12 mb-16 perspective-xl">
             {/* Product Image */}
             <div className="relative preserve-3d">
-              <div className="card-3d aspect-square rounded-xl overflow-hidden bg-secondary/50 group transition-all duration-500 hover:shadow-depth-xl hover:scale-[1.02]">
+              <div className="card-3d aspect-square rounded-xl overflow-hidden bg-white group transition-all duration-500 hover:shadow-depth-xl hover:scale-[1.02] mb-4">
                 <img
-                  src={product.image}
+                  src={activeImage || product.image || "/placeholder.svg"}
                   alt={product.name}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
               </div>
+
+              {/* Thumbnail Gallery */}
+              <div className="grid grid-cols-4 gap-4">
+                {[
+                  product.image,
+                  "https://images.unsplash.com/photo-1598032895397-b9c259f93c0c?w=600&q=80",
+                  "https://images.unsplash.com/photo-1578587018452-892bacefd3f2?w=600&q=80",
+                  "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=600&q=80"
+                ].map((img, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveImage(img as string)}
+                    className={`aspect-square rounded-lg overflow-hidden border-2 transition-all ${activeImage === img ? 'border-primary ring-2 ring-primary/20' : 'border-transparent hover:border-primary/50'}`}
+                  >
+                    <img src={img as string} alt={`View ${idx + 1}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+
               {product.includedItems && (
-                <div className="mt-4 flex items-center gap-4">
+                <div className="mt-6 flex items-center gap-4 p-4 bg-secondary/30 rounded-lg">
                   <div className="flex -space-x-3">
                     {product.includedItems.slice(0, 3).map((it, i) => (
                       // overlapping thumbnails to suggest a set
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img key={i} src={product.image} alt={`${product.name} ${it}`} className="w-16 h-16 object-cover rounded shadow-sm border border-border" style={{ zIndex: 10 - i }} />
+                      <img key={i} src={product.image} alt={`${product.name} ${it}`} className="w-10 h-10 object-cover rounded-full shadow-sm border border-border" style={{ zIndex: 10 - i }} />
                     ))}
                   </div>
                   <div className="ml-3 text-sm text-muted-foreground">
-                    <div className="font-medium">Bundle contents</div>
+                    <div className="font-medium text-foreground">Bundle Includes</div>
                     <div className="text-xs">{product.includedItems.slice(0, 3).join(", ")}{product.includedItems.length > 3 ? '...' : ''}</div>
                   </div>
                 </div>

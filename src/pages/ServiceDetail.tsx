@@ -9,6 +9,7 @@ type ServiceContent = {
   description: string;
   features: string[];
   examples: string[];
+  gallery?: { image: string; caption: string }[];
   cta?: { label: string; to: string };
 };
 
@@ -53,6 +54,12 @@ const services: Record<string, ServiceContent> = {
       "Secure storage and reorders available",
     ],
     examples: ["Site-wide uniform supply", "Event staffing kits", "Training cohorts"],
+    gallery: [
+      { image: "/assets/services/ref-construction.jpg", caption: "Construction & Site Safety" },
+      { image: "/assets/services/ref-events.jpg", caption: "Event Staff & Security" },
+      { image: "/assets/services/ref-medical.jpg", caption: "Healthcare & Clinical" },
+      { image: "/assets/services/ref-hospitality.jpg", caption: "Hospitality & Service" },
+    ],
     cta: { label: "Discuss bulk orders", to: "/contact" },
   },
   "corporate-accounts": {
@@ -132,6 +139,26 @@ const ServiceDetail: React.FC = () => {
                     ))}
                   </div>
 
+                  {svc.gallery && (
+                    <div className="mb-8">
+                      <h3 className="font-semibold mb-4">Conceptual References</h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        {svc.gallery.map((item, i) => (
+                          <div key={i} className="group relative overflow-hidden rounded-lg aspect-video shadow-sm">
+                            <img
+                              src={item.image}
+                              alt={item.caption}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-2">
+                              <span className="text-white text-xs font-medium">{item.caption}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex gap-3">
                     <Link to={svc.cta?.to || "/quote"}>
                       <Button>{svc.cta?.label || "Request a Quote"}</Button>
@@ -167,12 +194,24 @@ const ServiceDetail: React.FC = () => {
 
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {Object.entries(services).map(([slug, s]) => (
-                  <div key={slug} className="card-industrial p-4">
-                    <h3 className="font-semibold mb-2">{s.title}</h3>
-                    <p className="text-sm text-muted-foreground mb-3 line-clamp-3">{s.description}</p>
-                    <Link to={`/services/${slug}`} className="text-primary">
-                      Learn more →
-                    </Link>
+                  <div key={slug} className="card-industrial p-0 overflow-hidden group">
+                    <div className="h-40 overflow-hidden">
+                      <img
+                        src={s.hero}
+                        alt={s.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none'; // Hide if broken
+                        }}
+                      />
+                    </div>
+                    <div className="p-4 flex flex-col flex-1">
+                      <h3 className="font-semibold mb-2">{s.title}</h3>
+                      <p className="text-sm text-muted-foreground mb-3 line-clamp-3 flex-1">{s.description}</p>
+                      <Link to={`/services/${slug}`} className="text-primary hover:underline mt-auto inline-flex items-center">
+                        Learn more <span className="ml-1">→</span>
+                      </Link>
+                    </div>
                   </div>
                 ))}
               </div>

@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 import { ProductSummary } from "@/lib/products";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Star } from "lucide-react";
+import { ShoppingCart, Star, Share2, Heart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
 import { toast } from "sonner";
 
 interface ProductRecommendationsProps {
@@ -17,8 +18,25 @@ const ProductRecommendations = ({
     subtitle,
 }: ProductRecommendationsProps) => {
     const { addItem } = useCart();
+    const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
 
     if (products.length === 0) return null;
+
+    const handleToggleWishlist = (product: ProductSummary, e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (isInWishlist(product.id)) {
+            removeFromWishlist(product.id);
+        } else {
+            addToWishlist({
+                product_id: product.id,
+                product_name: product.name,
+                product_price: product.price,
+                product_image: product.image,
+                product_category: product.category,
+            });
+        }
+    };
 
     const handleAddToCart = (product: ProductSummary, e: React.MouseEvent) => {
         e.preventDefault();
@@ -61,6 +79,38 @@ const ProductRecommendations = ({
                                 alt={product.name}
                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                             />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 z-20">
+                                <Button
+                                    size="icon"
+                                    variant="secondary"
+                                    className="h-8 w-8"
+                                    onClick={(e) => handleAddToCart(product, e)}
+                                >
+                                    <ShoppingCart className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                    size="icon"
+                                    variant="secondary"
+                                    className={`h-8 w-8 ${isInWishlist(product.id) ? "text-red-500" : ""}`}
+                                    onClick={(e) => handleToggleWishlist(product, e)}
+                                >
+                                    <Heart className={`w-4 h-4 ${isInWishlist(product.id) ? "fill-current" : ""}`} />
+                                </Button>
+                                <Button
+                                    size="icon"
+                                    variant="secondary"
+                                    className="h-8 w-8"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        const url = `${window.location.origin}/products/${product.id}`;
+                                        const text = `Check out ${product.name}: ${url}`;
+                                        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                                    }}
+                                >
+                                    <Share2 className="w-4 h-4" />
+                                </Button>
+                            </div>
                         </div>
 
                         {/* Product Info */}
@@ -94,14 +144,7 @@ const ProductRecommendations = ({
                                 </div>
 
                                 {/* Quick Add Button */}
-                                <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    className="opacity-0 group-hover:opacity-100 transition-opacity shadow-depth-sm hover:shadow-depth-md"
-                                    onClick={(e) => handleAddToCart(product, e)}
-                                >
-                                    <ShoppingCart className="w-4 h-4" />
-                                </Button>
+
                             </div>
                         </div>
 

@@ -131,6 +131,17 @@ const Quote = () => {
 
             {/* Info Section */}
             <div className="space-y-8">
+              {/* Hero Image */}
+              <div className="card-3d p-2 overflow-hidden">
+                <div className="aspect-[4/3] w-full overflow-hidden rounded-lg">
+                  <img
+                    src="/assets/services/logo-printing.jpg"
+                    alt="Custom Logo Printing"
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                  />
+                </div>
+              </div>
+
               {/* Contact Info */}
               <div className="card-3d p-8">
                 <h3 className="font-display text-xl font-bold text-foreground mb-6">

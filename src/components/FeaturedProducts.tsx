@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Star, ShoppingCart, Heart } from "lucide-react";
+import { Star, ShoppingCart, Heart, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
@@ -122,12 +122,24 @@ const FeaturedProducts = () => {
                 )}
                 <button
                   onClick={() => handleToggleWishlist(product)}
-                  className={`absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center transition-all shadow-depth-sm hover:shadow-depth-md ${isInWishlist(product.id)
+                  className={`absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center transition-all shadow-depth-sm hover:shadow-depth-md z-10 ${isInWishlist(product.id)
                     ? "bg-primary text-primary-foreground scale-110"
                     : "bg-background/80 hover:bg-primary hover:text-primary-foreground hover:scale-110"
                     }`}
                 >
                   <Heart className={`w-4 h-4 ${isInWishlist(product.id) ? "fill-current" : ""}`} />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const url = `${window.location.origin}/products/${product.id}`;
+                    const text = `Check out ${product.name}: ${url}`;
+                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                  }}
+                  className="absolute top-16 right-4 w-9 h-9 rounded-full flex items-center justify-center transition-all shadow-depth-sm hover:shadow-depth-md bg-background/80 hover:bg-primary hover:text-primary-foreground hover:scale-110 z-10"
+                >
+                  <Share2 className="w-4 h-4" />
                 </button>
                 <div className="absolute inset-0 bg-background/0 group-hover:bg-background/60 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100 backdrop-blur-sm">
                   <Button

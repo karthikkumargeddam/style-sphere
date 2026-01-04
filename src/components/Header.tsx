@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, ShoppingCart, Phone, Search, User, LogOut, Mic, Heart, Moon, Sun, Volume2, VolumeX } from "lucide-react";
+import { Menu, X, ShoppingCart, Phone, Search, User, LogOut, Mic, Heart, Moon, Sun, Volume2, VolumeX, Package } from "lucide-react";
 import { getProductNames } from "@/lib/products";
 import CartPreview from "@/components/CartPreview";
 import { Button } from "@/components/ui/button";
@@ -359,6 +359,92 @@ const Header = () => {
           </div>
         </div>
       )}
+      {/* Desktop Navigation */}
+      <div className="hidden lg:block border-t border-border bg-background/50 backdrop-blur-sm">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center gap-8 text-sm font-medium">
+            <div className="relative group py-3">
+              <button className="flex items-center gap-1 hover:text-primary transition-colors">
+                Products
+                <span className="text-[10px] transform group-hover:rotate-180 transition-transform">▼</span>
+              </button>
+              <div className="absolute top-full left-0 w-48 pt-2 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-200 z-50">
+                <div className="bg-background border border-border rounded-lg shadow-xl p-2 flex flex-col gap-1">
+                  <Link to="/products?category=Safety%20Wear" className="px-3 py-2 hover:bg-secondary rounded-md transition-colors">
+                    Hi-Vis Workwear
+                  </Link>
+                  <Link to="/products?category=Work%20Trousers" className="px-3 py-2 hover:bg-secondary rounded-md transition-colors">
+                    Work Trousers
+                  </Link>
+                  <Link to="/products?category=Polo%20Shirts" className="px-3 py-2 hover:bg-secondary rounded-md transition-colors">
+                    Polo Shirts
+                  </Link>
+                  <Link to="/bundles" className="px-3 py-2 hover:bg-secondary rounded-md transition-colors">
+                    Bundles
+                  </Link>
+                  <Link to="/products?category=Safety%20Wear" className="px-3 py-2 hover:bg-secondary rounded-md transition-colors">
+                    Jackets & Coats
+                  </Link>
+                  <Link to="/products?category=Safety%20Footwear" className="px-3 py-2 hover:bg-secondary rounded-md transition-colors">
+                    Safety Boots
+                  </Link>
+                  <Link to="/products?category=PPE%20Equipment" className="px-3 py-2 hover:bg-secondary rounded-md transition-colors">
+                    PPE Equipment
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            <div className="relative group py-3">
+              <button className="flex items-center gap-1 hover:text-primary transition-colors">
+                Browse Category
+                <span className="text-[10px] transform group-hover:rotate-180 transition-transform">▼</span>
+              </button>
+              <div className="absolute top-full left-0 w-48 pt-2 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-200 z-50">
+                <div className="bg-background border border-border rounded-lg shadow-xl p-2 flex flex-col gap-1">
+                  <Link to="/products?category=cat_1" className="px-3 py-2 hover:bg-secondary rounded-md transition-colors">
+                    Safety Jackets
+                  </Link>
+                  <Link to="/products?category=cat_2" className="px-3 py-2 hover:bg-secondary rounded-md transition-colors">
+                    Work Pants
+                  </Link>
+                  <Link to="/products?category=cat_3" className="px-3 py-2 hover:bg-secondary rounded-md transition-colors">
+                    Hi-Vis Vests
+                  </Link>
+                  <Link to="/products?category=cat_4" className="px-3 py-2 hover:bg-secondary rounded-md transition-colors">
+                    Coveralls
+                  </Link>
+                  <Link to="/products?category=cat_5" className="px-3 py-2 hover:bg-secondary rounded-md transition-colors">
+                    Work Bundles
+                  </Link>
+                  <Link to="/products?category=cat_6" className="px-3 py-2 hover:bg-secondary rounded-md transition-colors">
+                    Protective Gear
+                  </Link>
+                  <Link to="/products?category=cat_7" className="px-3 py-2 hover:bg-secondary rounded-md transition-colors">
+                    Winter Workwear
+                  </Link>
+                  <Link to="/products?category=cat_8" className="px-3 py-2 hover:bg-secondary rounded-md transition-colors">
+                    Custom Wear
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            <Link to="/quote" className="hover:text-primary transition-colors">
+              Custom Printing
+            </Link>
+
+            <Link to="/services/bulk-orders" className="hover:text-primary transition-colors flex items-center gap-2">
+              <Package className="w-4 h-4" />
+              <span>Bulk Orders</span>
+            </Link>
+
+            <Link to="/services/corporate-accounts" className="hover:text-primary transition-colors">
+              Corporate Accounts
+            </Link>
+          </div>
+        </div>
+      </div>
     </header>
   );
 };

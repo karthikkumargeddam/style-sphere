@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,9 +56,21 @@ const LogoCustomizer = ({
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
     // Logo Placements - pre-select if defaultPlacement is provided
-    const [selectedPlacements, setSelectedPlacements] = useState<LogoPlacementPosition[]>(
-        defaultPlacement ? [defaultPlacement] : []
-    );
+    // Logo Placements - pre-select if defaultPlacement is provided
+    const [selectedPlacements, setSelectedPlacements] = useState<LogoPlacementPosition[]>([]);
+
+    // Initialize with default values on mount
+    useEffect(() => {
+        if (defaultPlacement) {
+            setSelectedPlacements([defaultPlacement]);
+        }
+    }, [defaultPlacement]);
+
+    // Apply updates after state changes
+    useEffect(() => {
+        updateCustomization();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedPlacements, applicationType, setupOption, logoType, textLogoData, uploadedFile]);
 
     // Update parent component whenever customization changes
     const updateCustomization = () => {

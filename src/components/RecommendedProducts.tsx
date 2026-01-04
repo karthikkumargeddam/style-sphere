@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
-import { Star, TrendingUp, ShoppingCart } from "lucide-react";
+import { Star, TrendingUp, ShoppingCart, Share2, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
+import { toast } from "sonner";
 
 interface Product {
     id: number;
@@ -27,6 +30,33 @@ const RecommendedProducts = ({
     title = "You May Also Like",
     limit = 6
 }: RecommendedProductsProps) => {
+    const { addItem } = useCart();
+    const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
+
+    const handleQuickAdd = (product: Product) => {
+        addItem({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image: product.image,
+            category: product.category,
+        });
+        toast.success(`${product.name} added to cart`);
+    };
+
+    const handleToggleWishlist = (product: Product) => {
+        if (isInWishlist(product.id)) {
+            removeFromWishlist(product.id);
+        } else {
+            addToWishlist({
+                product_id: product.id,
+                product_name: product.name,
+                product_price: product.price,
+                product_image: product.image,
+                product_category: product.category,
+            });
+        }
+    };
     // Mock recommended products (in real app, this would use AI/ML)
     const allProducts: Product[] = [
         {
@@ -144,6 +174,44 @@ const RecommendedProducts = ({
                                         Save £{(product.originalPrice - product.price).toFixed(0)}
                                     </Badge>
                                 )}
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 z-20">
+                                    <Button
+                                        size="icon"
+                                        variant="secondary"
+                                        className="h-10 w-10"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            handleQuickAdd(product);
+                                        }}
+                                    >
+                                        <ShoppingCart className="w-5 h-5" />
+                                    </Button>
+                                    <Button
+                                        size="icon"
+                                        variant="secondary"
+                                        className={`h-10 w-10 ${isInWishlist(product.id) ? "text-red-500" : ""}`}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            handleToggleWishlist(product);
+                                        }}
+                                    >
+                                        <Heart className={`w-5 h-5 ${isInWishlist(product.id) ? "fill-current" : ""}`} />
+                                    </Button>
+                                    <Button
+                                        size="icon"
+                                        variant="secondary"
+                                        className="h-10 w-10"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            const url = `${window.location.origin}/products/${product.id}`;
+                                            const text = `Check out ${product.name}: ${url}`;
+                                            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                                        }}
+                                    >
+                                        <Share2 className="w-5 h-5" />
+                                    </Button>
+                                </div>
                             </div>
 
                             {/* Product Info */}
@@ -160,8 +228,8 @@ const RecommendedProducts = ({
                                             <Star
                                                 key={i}
                                                 className={`w-3 h-3 ${i < Math.floor(product.rating)
-                                                        ? "fill-yellow-400 text-yellow-400"
-                                                        : "text-gray-300"
+                                                    ? "fill-yellow-400 text-yellow-400"
+                                                    : "text-gray-300"
                                                     }`}
                                             />
                                         ))}
@@ -184,10 +252,7 @@ const RecommendedProducts = ({
                                 </div>
 
                                 {/* Quick Add Button */}
-                                <Button size="sm" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                                    <ShoppingCart className="w-4 h-4 mr-2" />
-                                    Quick Add
-                                </Button>
+
                             </div>
                         </div>
                     </Link>

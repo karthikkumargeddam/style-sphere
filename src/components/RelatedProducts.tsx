@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
-import { Star, ShoppingCart } from "lucide-react";
+import { Star, ShoppingCart, Share2, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
 import { toast } from "sonner";
 import safetyVest from "@/assets/product-safety-vest.jpg";
 import workTrousers from "@/assets/product-work-trousers.jpg";
@@ -28,6 +29,21 @@ const allProducts = [
 
 const RelatedProducts = ({ currentProductId, currentCategory }: RelatedProductsProps) => {
   const { addItem } = useCart();
+  const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
+
+  const handleToggleWishlist = (product: typeof allProducts[0]) => {
+    if (isInWishlist(product.id)) {
+      removeFromWishlist(product.id);
+    } else {
+      addToWishlist({
+        product_id: product.id,
+        product_name: product.name,
+        product_price: product.price,
+        product_image: product.image,
+        product_category: product.category,
+      });
+    }
+  };
 
   // Get products from the same category, excluding current product
   const sameCategory = allProducts.filter(
@@ -87,17 +103,54 @@ const RelatedProducts = ({ currentProductId, currentCategory }: RelatedProductsP
                 />
                 {product.badge && (
                   <Badge
-                    className={`absolute top-3 left-3 ${
-                      product.badge === "Sale"
-                        ? "bg-red-500"
-                        : product.badge === "New"
+                    className={`absolute top-3 left-3 ${product.badge === "Sale"
+                      ? "bg-red-500"
+                      : product.badge === "New"
                         ? "bg-green-500"
                         : "bg-primary"
-                    }`}
+                      }`}
                   >
                     {product.badge}
                   </Badge>
                 )}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 z-20">
+                  <Button
+                    size="icon"
+                    variant="secondary"
+                    className="h-10 w-10"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleQuickAdd(product);
+                    }}
+                  >
+                    <ShoppingCart className="w-5 h-5" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="secondary"
+                    className={`h-10 w-10 ${isInWishlist(product.id) ? "text-red-500" : ""}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleToggleWishlist(product);
+                    }}
+                  >
+                    <Heart className={`w-5 h-5 ${isInWishlist(product.id) ? "fill-current" : ""}`} />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="secondary"
+                    className="h-10 w-10"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      const url = `${window.location.origin}/products/${product.id}`;
+                      const text = `Check out ${product.name}: ${url}`;
+                      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                    }}
+                  >
+                    <Share2 className="w-5 h-5" />
+                  </Button>
+                </div>
               </div>
             </Link>
 
@@ -116,11 +169,10 @@ const RelatedProducts = ({ currentProductId, currentCategory }: RelatedProductsP
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className={`w-3 h-3 ${
-                        i < Math.floor(product.rating)
-                          ? "fill-yellow-400 text-yellow-400"
-                          : "text-muted-foreground"
-                      }`}
+                      className={`w-3 h-3 ${i < Math.floor(product.rating)
+                        ? "fill-yellow-400 text-yellow-400"
+                        : "text-muted-foreground"
+                        }`}
                     />
                   ))}
                 </div>
@@ -140,17 +192,7 @@ const RelatedProducts = ({ currentProductId, currentCategory }: RelatedProductsP
                     </span>
                   )}
                 </div>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleQuickAdd(product);
-                  }}
-                >
-                  <ShoppingCart className="w-4 h-4" />
-                </Button>
+
               </div>
             </div>
           </div>

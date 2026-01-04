@@ -113,7 +113,7 @@ const CartSidebar = () => {
                       {item.category}
                     </p>
                     <p className="text-primary font-bold mt-1">
-                      £{item.price.toFixed(2)}
+                      £{(item.price * item.quantity).toFixed(2)}
                     </p>
                     <div className="flex items-center gap-2 mt-2">
                       <button

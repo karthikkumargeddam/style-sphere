@@ -4,7 +4,10 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Package, TrendingDown, Sparkles, Star, Users, ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { Package, TrendingDown, Sparkles, Star, Users, ChevronLeft, ChevronRight, Plus, ShoppingCart, Heart, Share2 } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -111,6 +114,34 @@ const Bundles = () => {
   const [filter, setFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(24);
+
+  const { addItem } = useCart();
+  const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlist();
+
+  const handleAddToCart = (bundle: any) => {
+    addItem({
+      id: bundle.id,
+      name: bundle.name,
+      price: bundle.price,
+      image: bundle.images[0],
+      category: bundle.category,
+    });
+    toast.success(`${bundle.name} added to cart`);
+  };
+
+  const handleToggleWishlist = (bundle: any) => {
+    if (isInWishlist(bundle.id)) {
+      removeFromWishlist(bundle.id);
+    } else {
+      addToWishlist({
+        product_id: bundle.id,
+        product_name: bundle.name,
+        product_price: bundle.price,
+        product_image: bundle.images[0],
+        product_category: bundle.category,
+      });
+    }
+  };
 
   const filteredBundles = filter === "all"
     ? bundles
@@ -299,6 +330,46 @@ const Bundles = () => {
                       <Sparkles className="w-3 h-3 mr-1" />
                       {bundle.itemCount} Items
                     </Badge>
+
+                    {/* Quick actions overlay */}
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 z-20">
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        className="h-10 w-10"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleAddToCart(bundle);
+                        }}
+                      >
+                        <ShoppingCart className="w-5 h-5" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        className={`h-10 w-10 ${isInWishlist(bundle.id) ? "text-red-500" : ""}`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleToggleWishlist(bundle);
+                        }}
+                      >
+                        <Heart className={`w-5 h-5 ${isInWishlist(bundle.id) ? "fill-current" : ""}`} />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        className="h-10 w-10"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          const url = `${window.location.origin}/bundles/${bundle.id}`;
+                          const text = `Check out ${bundle.name}: ${url}`;
+                          window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                        }}
+                      >
+                        <Share2 className="w-5 h-5" />
+                      </Button>
+                    </div>
                   </div>
                 </Link>
 
@@ -362,54 +433,56 @@ const Bundles = () => {
           </div>
 
           {/* Amazon-Style Pagination */}
-          {totalPages > 1 && (
-            <div className="flex justify-center items-center gap-2 mb-12">
-              {/* Previous Button */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
-                className="gap-1"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                Previous
-              </Button>
+          {
+            totalPages > 1 && (
+              <div className="flex justify-center items-center gap-2 mb-12">
+                {/* Previous Button */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  className="gap-1"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Previous
+                </Button>
 
-              {/* Page Numbers */}
-              <div className="flex gap-1">
-                {getPageNumbers().map((page, index) => (
-                  page === '...' ? (
-                    <span key={`ellipsis-${index}`} className="px-3 py-2 text-muted-foreground">
-                      ...
-                    </span>
-                  ) : (
-                    <Button
-                      key={page}
-                      variant={currentPage === page ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setCurrentPage(page as number)}
-                      className="min-w-[40px]"
-                    >
-                      {page}
-                    </Button>
-                  )
-                ))}
+                {/* Page Numbers */}
+                <div className="flex gap-1">
+                  {getPageNumbers().map((page, index) => (
+                    page === '...' ? (
+                      <span key={`ellipsis-${index}`} className="px-3 py-2 text-muted-foreground">
+                        ...
+                      </span>
+                    ) : (
+                      <Button
+                        key={page}
+                        variant={currentPage === page ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCurrentPage(page as number)}
+                        className="min-w-[40px]"
+                      >
+                        {page}
+                      </Button>
+                    )
+                  ))}
+                </div>
+
+                {/* Next Button */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages}
+                  className="gap-1"
+                >
+                  Next
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
               </div>
-
-              {/* Next Button */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                disabled={currentPage === totalPages}
-                className="gap-1"
-              >
-                Next
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
-          )}
+            )
+          }
 
           {/* Trust Section */}
           <div className="card-3d p-8 text-center">
@@ -447,11 +520,11 @@ const Bundles = () => {
               </div>
             </div>
           </div>
-        </div>
-      </main>
+        </div >
+      </main >
 
       <Footer />
-    </div>
+    </div >
   );
 };
 

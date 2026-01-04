@@ -28,7 +28,7 @@ interface BundleOption {
 interface EmbroideryArea {
     id: string;
     name: string;
-    icon: string;
+    image: string;
 }
 
 const BUNDLE_OPTIONS = {
@@ -55,11 +55,11 @@ const BUNDLE_OPTIONS = {
 };
 
 const EMBROIDERY_AREAS: EmbroideryArea[] = [
-    { id: "left-chest", name: "Left Chest", icon: "👕" },
-    { id: "right-chest", name: "Right Chest", icon: "👔" },
-    { id: "back", name: "Back", icon: "🎽" },
-    { id: "sleeve", name: "Sleeve", icon: "💪" },
-    { id: "custom", name: "Custom", icon: "✨" },
+    { id: "left-chest", name: "Left Chest", image: "/images/placements/left-chest.png" },
+    { id: "right-chest", name: "Right Chest", image: "/images/placements/right-chest.png" },
+    { id: "back", name: "Back", image: "/images/placements/back.png" },
+    { id: "sleeve", name: "Sleeve", image: "/images/placements/sleeve.png" },
+    { id: "custom", name: "Custom", image: "/images/placements/left-chest.png" },
 ];
 
 // Map embroidery area IDs to LogoPlacementPosition
@@ -85,6 +85,7 @@ export const AdvancedBundleBuilder = () => {
     const [currentEmbroideryArea, setCurrentEmbroideryArea] = useState<string | null>(null);
     // Store customization data for each area separately
     const [areaCustomizations, setAreaCustomizations] = useState<Record<string, any>>({});
+    const [isAdded, setIsAdded] = useState(false);
     const { toast } = useToast();
     const { addItem } = useCart();
 
@@ -137,6 +138,8 @@ export const AdvancedBundleBuilder = () => {
 
         console.log("Adding bundle to cart:", cartItem);
         addItem(cartItem);
+        setIsAdded(true);
+        setTimeout(() => setIsAdded(false), 2000);
 
         toast({
             title: "✅ Bundle Added to Cart!",
@@ -153,17 +156,26 @@ export const AdvancedBundleBuilder = () => {
         setAreaCustomizations({});
     };
 
+    const [activeImage, setActiveImage] = useState("https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600&q=80");
+
+    const bundleImages = [
+        "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600&q=80",
+        "https://images.unsplash.com/photo-1598032895397-b9c259f93c0c?w=600&q=80",
+        "https://images.unsplash.com/photo-1578587018452-892bacefd3f2?w=600&q=80",
+        "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=600&q=80",
+    ];
+
     return (
         <div className="grid lg:grid-cols-3 gap-8">
             {/* Left Side - Product Image */}
             <div className="lg:col-span-1">
                 <div className="sticky top-24">
                     <Card className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20">
-                        <div className="relative">
+                        <div className="relative aspect-[4/5] rounded-lg overflow-hidden mb-4 bg-white">
                             <img
-                                src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600&q=80"
+                                src={activeImage}
                                 alt="Bundle Preview"
-                                className="w-full rounded-lg shadow-2xl"
+                                className="w-full h-full object-cover transition-all duration-300"
                             />
                             <Badge className="absolute top-4 right-4 bg-red-500 text-white text-lg px-4 py-2">
                                 FROM £{basePrice} +VAT
@@ -171,6 +183,26 @@ export const AdvancedBundleBuilder = () => {
                             <Badge className="absolute bottom-4 left-4 bg-green-500 text-white px-3 py-1">
                                 FREE DELIVERY
                             </Badge>
+                        </div>
+
+                        {/* Thumbnail Grid */}
+                        <div className="grid grid-cols-4 gap-2 mb-4">
+                            {bundleImages.map((img, idx) => (
+                                <button
+                                    key={idx}
+                                    onClick={() => setActiveImage(img)}
+                                    className={`relative aspect-square rounded-md overflow-hidden border-2 transition-all ${activeImage === img
+                                        ? 'border-primary ring-2 ring-primary/20'
+                                        : 'border-transparent hover:border-primary/50'
+                                        }`}
+                                >
+                                    <img
+                                        src={img}
+                                        alt={`View ${idx + 1}`}
+                                        className="w-full h-full object-cover"
+                                    />
+                                </button>
+                            ))}
                         </div>
 
                         <div className="mt-6 space-y-3">
@@ -353,16 +385,29 @@ export const AdvancedBundleBuilder = () => {
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             setSelectedEmbroidery((prev) => prev.filter(id => id !== area.id));
+                                            setAreaCustomizations((prev) => {
+                                                const newState = { ...prev };
+                                                delete newState[area.id];
+                                                return newState;
+                                            });
                                         }}
-                                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
+                                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600 z-10"
                                     >
                                         ×
                                     </button>
                                 )}
-                                <div className="text-4xl mb-2">{area.icon}</div>
+                                <div className="aspect-square mb-2 relative rounded-md overflow-hidden bg-white group-hover:ring-2 group-hover:ring-primary transition-all">
+                                    <img
+                                        src={area.image}
+                                        alt={area.name}
+                                        className="w-full h-full object-contain mix-blend-multiply"
+                                    />
+                                </div>
                                 <p className="text-xs font-medium">{area.name}</p>
                                 {selectedEmbroidery.includes(area.id) && (
-                                    <Check className="w-4 h-4 text-primary mx-auto mt-2" />
+                                    <div className="absolute top-2 left-2 bg-primary rounded-full p-1 shadow-md">
+                                        <Check className="w-3 h-3 text-white" />
+                                    </div>
                                 )}
                             </Card>
                         ))}
@@ -425,11 +470,21 @@ export const AdvancedBundleBuilder = () => {
 
                     <Button
                         size="lg"
-                        className="w-full text-lg"
+                        className={`w-full text-lg transition-all duration-300 ${isAdded ? "bg-green-600 hover:bg-green-700" : ""}`}
                         onClick={handleAddToCart}
+                        disabled={isAdded}
                     >
-                        <ShoppingCart className="w-5 h-5 mr-2" />
-                        Add Bundle to Cart
+                        {isAdded ? (
+                            <>
+                                <Check className="w-5 h-5 mr-2" />
+                                Added to Cart!
+                            </>
+                        ) : (
+                            <>
+                                <ShoppingCart className="w-5 h-5 mr-2" />
+                                Add Bundle to Cart
+                            </>
+                        )}
                     </Button>
                 </Card>
             </div>
@@ -465,6 +520,6 @@ export const AdvancedBundleBuilder = () => {
                     />
                 </DialogContent>
             </Dialog>
-        </div>
+        </div >
     );
 };

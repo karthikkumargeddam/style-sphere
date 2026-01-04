@@ -23,6 +23,7 @@ import {
   Heart,
   Search,
   X,
+  Share2,
 } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
@@ -400,6 +401,20 @@ const Products = () => {
                               className={`w-5 h-5 ${isInWishlist(product.id) ? "fill-current" : ""
                                 }`}
                             />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="secondary"
+                            className="h-10 w-10"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              const url = `${window.location.origin}/products/${product.id}`;
+                              const text = `Check out ${product.name}: ${url}`;
+                              window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                            }}
+                          >
+                            <Share2 className="w-5 h-5" />
                           </Button>
                         </div>
                       </div>
