@@ -41,6 +41,8 @@ const categories = [
   "Hi-Vis Vests",
   "Coveralls",
   "Winter Workwear",
+  "Work Jackets",
+  "Work Coats",
 ];
 
 const images = [
@@ -50,10 +52,12 @@ const images = [
   hardHat,
   safetyVest,
   workTrousers,
-  "https://images.unsplash.com/photo-1608042314453-ae338d80c427?w=400&q=80", // Safety Boots
+  "/assets/product-safety-boot.jpg", // Safety Boots - Updated
   "https://images.unsplash.com/photo-1572307480813-ceb0e59d8325?w=400&q=80", // Hi-Vis Vests
   "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=400&q=80", // Coveralls
   "https://images.unsplash.com/photo-1544923246-77307dd654f3?w=400&q=80", // Winter Workwear
+  "/assets/product-work-jacket.jpg", // Work Jackets - New
+  "/assets/product-work-coat.jpg", // Work Coats - New
 ];
 
 const random = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;

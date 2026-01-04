@@ -1,7 +1,9 @@
 import { useParams, Link } from "react-router-dom";
+import { toast } from "sonner";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { ArrowLeft, Package, MapPin, CreditCard, Truck } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Package, MapPin, CreditCard, Truck, Download, RefreshCw } from "lucide-react";
 
 const OrderDetail = () => {
     const { orderId } = useParams();
@@ -73,8 +75,8 @@ const OrderDetail = () => {
                             </div>
                             <span
                                 className={`px-4 py-2 rounded-full text-sm font-semibold ${order.status === "Delivered"
-                                        ? "bg-green-500/20 text-green-500"
-                                        : "bg-blue-500/20 text-blue-500"
+                                    ? "bg-green-500/20 text-green-500"
+                                    : "bg-blue-500/20 text-blue-500"
                                     }`}
                             >
                                 {order.status}
@@ -177,17 +179,25 @@ const OrderDetail = () => {
                                             <span className="text-primary">£{order.total.toFixed(2)}</span>
                                         </div>
                                     </div>
+                                    <div className="border-t border-border pt-4 mt-4 space-y-3">
+                                        <Button
+                                            className="w-full"
+                                            variant="outline"
+                                            onClick={() => toast.success("Items added to cart", { description: "Redirecting to cart checkout..." })}
+                                        >
+                                            <RefreshCw className="w-4 h-4 mr-2" />
+                                            Reorder Items
+                                        </Button>
+                                        <Button
+                                            className="w-full"
+                                            variant="secondary"
+                                            onClick={() => toast.success("Downloading Invoice", { description: `Invoice #${order.id}.pdf has been saved` })}
+                                        >
+                                            <Download className="w-4 h-4 mr-2" />
+                                            Download Invoice
+                                        </Button>
+                                    </div>
                                 </div>
-                            </div>
-
-                            {/* Actions */}
-                            <div className="space-y-3">
-                                <button className="w-full glass px-4 py-3 rounded-lg font-semibold hover:bg-primary hover:text-white transition-colors">
-                                    Reorder
-                                </button>
-                                <button className="w-full glass px-4 py-3 rounded-lg font-semibold hover:bg-primary hover:text-white transition-colors">
-                                    Download Invoice
-                                </button>
                             </div>
                         </div>
                     </div>
